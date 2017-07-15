@@ -151,19 +151,28 @@ const SensorsMenuButton = new Lang.Class({
       let sensorsList = new Array();
       let sum = 0; //sum
       let max = 0; //max temp
+      let allCoreTemps = '';
       for each (let temp in tempInfo){
         sum += temp['temp'];
         if (temp['temp'] > max)
           max = temp['temp'];
 
         sensorsList.push(new SensorsItem('temperature', temp['label'], this._formatTemp(temp['temp'])));
+        if (temp['label'].contains("Core")) {
+            if (temp['high'] <= temp['temp']) {
+                allCoreTemps += ("!");
+            }
+            allCoreTemps += _("%s ").format(this._formatTemp(temp['temp']));
+        }
       }
+
       if (tempInfo.length > 0){
         sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
 
         // Add average and maximum entries
         sensorsList.push(new SensorsItem('temperature', _("Average"), this._formatTemp(sum/tempInfo.length)));
         sensorsList.push(new SensorsItem('temperature', _("Maximum"), this._formatTemp(max)));
+        sensorsList.push(new SensorsItem('temperature', _("All Cores"), allCoreTemps));
 
         if(fanInfo.length > 0 || voltageInfo.length > 0)
           sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
@@ -188,6 +197,7 @@ const SensorsMenuButton = new Lang.Class({
             // Configure as main sensor and set panel string
             item.setMainSensor();
             this.statusLabel.set_text(item.getPanelString());
+            //this.statusLabel.set_text(allCoreTemps);
           }
         }
         section.addMenuItem(item);
