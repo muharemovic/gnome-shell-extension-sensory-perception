@@ -197,7 +197,6 @@ const SensorsMenuButton = new Lang.Class({
             // Configure as main sensor and set panel string
             item.setMainSensor();
             this.statusLabel.set_text(item.getPanelString());
-            //this.statusLabel.set_text(allCoreTemps);
           }
         }
         section.addMenuItem(item);
