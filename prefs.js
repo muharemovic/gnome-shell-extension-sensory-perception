@@ -101,6 +101,7 @@ const SensorsPrefsWidget = new GObject.Class({
     this._model.set_column_types([GObject.TYPE_STRING, GObject.TYPE_BOOLEAN]);
     this._appendItem(_("Average"));
     this._appendItem(_("Maximum"));
+    this._appendItem(_("All Cores"));
     this._appendSeparator();
 
     //Get current options
