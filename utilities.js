@@ -214,8 +214,8 @@ const Future = new Lang.Class({
                       null /* child_setup */);
       this._stdout = new Gio.UnixInputStream({fd: stdout, close_fd: true});
       this._dataStdout = new Gio.DataInputStream({base_stream: this._stdout});
+	  this._stderr = new Gio.UnixInputStream({fd: stderr, close_fd: true});
       new Gio.UnixOutputStream({fd: stdin, close_fd: true}).close(null);
-      new Gio.UnixInputStream({fd: stderr, close_fd: true}).close(null);
 
       this._childWatch = GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, Lang.bind(this, function(pid, status, requestObj) {
         GLib.source_remove(this._childWatch);
@@ -236,6 +236,7 @@ const Future = new Lang.Class({
           global.log(e.toString());
         }
         this._stdout.close(null);
+		this._stderr.close(null);
         return;
       }
 
