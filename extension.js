@@ -12,6 +12,7 @@ const Utilities = Me.imports.utilities;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 const Clutter = imports.gi.Clutter;
+const SHELL_VERSION = imports.misc.config.PACKAGE_VERSION;
 
 let settings;
 let metadata = Me.metadata;
@@ -141,9 +142,9 @@ const SensorsMenuButton = new Lang.Class({
 
     tempInfo = tempInfo.concat(Utilities.UDisks.create_list_from_proxies(this.udisksProxies));
 
-    tempInfo.sort(function(a,b) { return a['label'].localeCompare(b['label']) });
-    fanInfo.sort(function(a,b) { return a['label'].localeCompare(b['label']) });
-    voltageInfo.sort(function(a,b) { return a['label'].localeCompare(b['label']) });
+    tempInfo.sort(function(a,b) { return a.label.localeCompare(b.label) });
+    fanInfo.sort(function(a,b) { return a.label.localeCompare(b.label) });
+    voltageInfo.sort(function(a,b) { return a.label.localeCompare(b.label) });
 
     this.menu.removeAll();
     let section = new PopupMenu.PopupMenuSection("Temperature");
@@ -153,17 +154,18 @@ const SensorsMenuButton = new Lang.Class({
       let max = 0; //max temp
       let allCoreTemps = '';
       for each (let temp in tempInfo){
-        sum += temp['temp'];
-        if (temp['temp'] > max)
-          max = temp['temp'];
+        sum += temp.temp;
+        if (temp.temp > max)
+          max = temp.temp;
 
-        sensorsList.push(new SensorsItem('temperature', temp['label'], this._formatTemp(temp['temp'])));
-        // global.log('[DEBUG] temp.label: ' + temp.label);
-        if (temp['label'].includes("Core")) {
-            if (temp['high'] <= temp['temp']) {
+        sensorsList.push(new SensorsItem('temperature', temp.label, this._formatTemp(temp.temp)));
+        // global.log('[DEBUG] Detected Shell version: ' + SHELL_VERSION);
+        let includesCore = SHELL_VERSION < '3.26' ? temp.label.contains('Core') : temp.label.includes('Core');
+        if (includesCore) {
+            if (temp.high <= temp.temp) {
                 allCoreTemps += ("!");
             }
-            allCoreTemps += _("%s ").format(this._formatTemp(temp['temp']));
+            allCoreTemps += _("%s ").format(this._formatTemp(temp.temp));
         }
       }
 
@@ -180,13 +182,13 @@ const SensorsMenuButton = new Lang.Class({
       }
 
       for each (let fan in fanInfo){
-        sensorsList.push(new SensorsItem('fan', fan['label'], _("%drpm").format(fan['rpm'])));
+        sensorsList.push(new SensorsItem('fan', fan.label, _("%drpm").format(fan['rpm'])));
       }
       if (fanInfo.length > 0 && voltageInfo.length > 0){
         sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
       for each (let voltage in voltageInfo){
-        sensorsList.push(new SensorsItem('voltage', voltage['label'], _("%s%.2fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
+        sensorsList.push(new SensorsItem('voltage', voltage.label, _("%s%.2fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
       }
 
       this.statusLabel.set_text(_("N/A")); // Just in case
