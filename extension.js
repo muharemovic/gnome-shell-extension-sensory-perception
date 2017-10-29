@@ -158,7 +158,8 @@ const SensorsMenuButton = new Lang.Class({
           max = temp['temp'];
 
         sensorsList.push(new SensorsItem('temperature', temp['label'], this._formatTemp(temp['temp'])));
-        if (temp['label'].contains("Core")) {
+        // global.log('[DEBUG] temp.label: ' + temp.label);
+        if (temp['label'].includes("Core")) {
             if (temp['high'] <= temp['temp']) {
                 allCoreTemps += ("!");
             }
