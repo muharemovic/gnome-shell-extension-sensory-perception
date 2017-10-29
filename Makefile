@@ -4,3 +4,6 @@ FILENAME="$(UUID)-v$(VERSION).zip"
 
 zip:
 	zip -rT $(FILENAME) icons po schemas *.js *.json *.css LICENSE README.md
+
+watch_logs:
+	journalctl /usr/bin/gnome-shell -f -o cat
