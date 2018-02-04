@@ -263,7 +263,7 @@ const Async = {
 
 function debug(str){
   //tail -f -n100 ~/.cache/gdm/session.log | grep temperature
-  print ('LOG temperature@xtranophilist: ' + str);
+  print ('LOG ' + Me.metadata.uuid + ': ' + str);
 }
 
 // routines for handling of udisks2
