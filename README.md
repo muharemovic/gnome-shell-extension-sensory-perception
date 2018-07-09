@@ -18,7 +18,7 @@ You may want to set the labels of your sensors to something like 'CPU' instead o
 
 ## Troubleshooting
 
-One of the best ways to troubleshott is to watch the logs with `journalctl` and restart the extension. You can reload this extension with the handy [Gnome Shell Extension Reloader](https://extensions.gnome.org/extension/1137/gnome-shell-extension-reloader/) extension.
+One of the best ways to troubleshoot is to watch the logs with `journalctl` and restart the extension. You can reload this extension with the handy [Gnome Shell Extension Reloader](https://extensions.gnome.org/extension/1137/gnome-shell-extension-reloader/) extension.
 
 ```
 journalctl --since="`date '+%Y-%m-%d %H:%M'`" -f | grep sensory-perception
