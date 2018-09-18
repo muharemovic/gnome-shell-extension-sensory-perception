@@ -1,0 +1,33 @@
+{
+  "name": "sensory-perception",
+  "version": "1.0.0",
+  "description": "Shows CPU temperature, disk temperature, video card temperature, voltage and fan RPM (forked from xtranophilist/gnome-shell-extension-sensors)",
+  "main": "extension.js",
+  "scripts": {
+    "test": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HarlemSquirrel/gnome-shell-extension-sensory-perception.git"
+  },
+  "keywords": [
+    "gnome",
+    "shell",
+    "extension",
+    "temp"
+  ],
+  "author": "Kevin McCormack (HarlemSquirrel@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HarlemSquirrel/gnome-shell-extension-sensory-perception/issues"
+  },
+  "homepage": "https://github.com/HarlemSquirrel/gnome-shell-extension-sensory-perception",
+  "devDependencies": {
+    "eslint": "^4.10.0",
+    "eslint-config-gjs": "0.0.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
+  }
+}

@@ -1,0 +1,11 @@
+extends: eslint-config-gjs
+
+parserOptions:
+  ecmaVersion: 6
+
+rules:
+  camelcase:
+    - error
+    - properties: always
+  no-trailing-spaces: error
+  'prefer-const': 'error'
