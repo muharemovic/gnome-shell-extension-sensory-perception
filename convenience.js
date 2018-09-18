@@ -7,6 +7,7 @@ const Gtk = imports.gi.Gtk;
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 /**
  * initTranslations:
  * @domain: (optional): the gettext domain to use
@@ -15,17 +16,15 @@ const ExtensionUtils = imports.misc.extensionUtils;
  * If @domain is not provided, it will be taken from metadata['gettext-domain']
  */
 function initTranslations(domain) {
-  let extension = ExtensionUtils.getCurrentExtension();
-
-  domain = domain || extension.metadata['gettext-domain'];
+  const LocaleDir = Me.dir.get_child('locale');
+  domain = domain || Me.metadata['gettext-domain'];
 
   // check if this extension was built with "make zip-file", and thus
   // has the locale files in a subfolder
   // otherwise assume that extension has been installed in the
   // same prefix as gnome-shell
-  let localeDir = extension.dir.get_child('locale');
-  if (localeDir.query_exists(null))
-    Gettext.bindtextdomain(domain, localeDir.get_path());
+  if (LocaleDir.query_exists(null))
+    Gettext.bindtextdomain(domain, LocaleDir.get_path());
   else
     Gettext.bindtextdomain(domain, Config.LOCALEDIR);
 }
@@ -36,12 +35,10 @@ function initTranslations(domain) {
  * Initialize Gtk to load icons from extensionsdir/icons.
  */
 function initIcons() {
-  let extension = ExtensionUtils.getCurrentExtension();
-
-  let theme = Gtk.IconTheme.get_default();
-  let iconDir = extension.dir.get_child('icons');
-  if(iconDir.query_exists(null))
-    theme.append_search_path(iconDir.get_path());
+  const Theme = Gtk.IconTheme.get_default();
+  const IconDir = Me.dir.get_child('icons');
+  if(IconDir.query_exists(null))
+    Theme.append_search_path(IconDir.get_path());
 }
 
 /**
@@ -53,9 +50,7 @@ function initIcons() {
  * metadata['settings-schema'].
  */
 function getSettings(schema) {
-  let extension = ExtensionUtils.getCurrentExtension();
-
-  schema = schema || extension.metadata['settings-schema'];
+  schema = schema || Me.metadata['settings-schema'];
 
   const GioSSS = Gio.SettingsSchemaSource;
 
@@ -64,19 +59,21 @@ function getSettings(schema) {
   // otherwise assume that extension has been installed in the
   // same prefix as gnome-shell (and therefore schemas are available
   // in the standard folders)
-  let schemaDir = extension.dir.get_child('schemas');
+  const SchemaDir = Me.dir.get_child('schemas');
   let schemaSource;
-  if (schemaDir.query_exists(null))
-    schemaSource = GioSSS.new_from_directory(schemaDir.get_path(),
-                         GioSSS.get_default(),
-                         false);
+  if (SchemaDir.query_exists(null))
+    schemaSource = GioSSS.new_from_directory(
+      SchemaDir.get_path(),
+      GioSSS.get_default(),
+      false
+    );
   else
     schemaSource = GioSSS.get_default();
 
-  let schemaObj = schemaSource.lookup(schema, true);
-  if (!schemaObj)
+  const SchemaObj = schemaSource.lookup(schema, true);
+  if (!SchemaObj)
     throw new Error('Schema ' + schema + ' could not be found for extension '
-            + extension.metadata.uuid + '. Please check your installation.');
+            + Me.metadata.uuid + '. Please check your installation.');
 
-  return new Gio.Settings({ settings_schema: schemaObj });
+  return new Gio.Settings({ settings_schema: SchemaObj });
 }

@@ -8,43 +8,45 @@ const _ = Gettext.gettext;
 const Logger = Me.imports.logger.Logger;
 
 const UDisksDriveProxy = Gio.DBusProxy.makeProxyWrapper(
-'<node>\
-  <interface name="org.freedesktop.UDisks2.Drive">\
-    <property type="s" name="Model" access="read"/>\
-  </interface>\
-</node>');
+  '<node>\
+    <interface name="org.freedesktop.UDisks2.Drive">\
+      <property type="s" name="Model" access="read"/>\
+    </interface>\
+  </node>'
+);
 
 const UDisksDriveAtaProxy = Gio.DBusProxy.makeProxyWrapper(
-'<node>\
-  <interface name="org.freedesktop.UDisks2.Drive.Ata">\
-    <property type="d" name="SmartTemperature" access="read"/>\
-  </interface>\
-</node>');
+  '<node>\
+    <interface name="org.freedesktop.UDisks2.Drive.Ata">\
+      <property type="d" name="SmartTemperature" access="read"/>\
+    </interface>\
+  </node>'
+);
 
 function detectSensors() {
-  Logger.debug('Attempting to find sensors in path')
-  let sensorsProg = GLib.find_program_in_path('sensors')
+  Logger.debug('Attempting to find sensors in path');
+  const sensorsProg = GLib.find_program_in_path('sensors');
   return typeof sensorsProg !== 'undefined' ? [sensorsProg] : undefined;
 }
 
 function detectHDDTemp() {
-  let hddtempArgv = GLib.find_program_in_path('hddtemp');
+  const hddtempArgv = GLib.find_program_in_path('hddtemp');
   if(hddtempArgv) {
     // check if this user can run hddtemp directly.
     if(!GLib.spawn_command_line_sync(hddtempArgv)[3])
       return [hddtempArgv];
   }
   // doesn't seem to be the case… is it running as a daemon?
-	// Check first for systemd
-  let systemctl = GLib.find_program_in_path('systemctl');
-  let pidof = GLib.find_program_in_path('pidof');
-  let nc = GLib.find_program_in_path('nc');
+  // Check first for systemd
+  const systemctl = GLib.find_program_in_path('systemctl');
+  const pidof = GLib.find_program_in_path('pidof');
+  const nc = GLib.find_program_in_path('nc');
   let pid = undefined;
 
   if(systemctl) {
-    let activeState = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1].toString().trim();
+    const activeState = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1].toString().trim();
     if(activeState == "ActiveState=active") {
-      let output = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1].toString().trim();
+      const output = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1].toString().trim();
 
       if(output.length && output.split("=").length == 2) {
         pid = Number(output.split("=")[1].trim());
@@ -54,7 +56,7 @@ function detectHDDTemp() {
 
   // systemd isn't used on this system, try sysvinit instead
   if(!pid && pidof) {
-    let output = GLib.spawn_command_line_sync("pidof hddtemp")[1].toString().trim();
+    const output = GLib.spawn_command_line_sync("pidof hddtemp")[1].toString().trim();
 
     if(output.length) {
       pid = Number(output.trim());
@@ -64,10 +66,10 @@ function detectHDDTemp() {
   if(nc && pid)
   {
     // get daemon command line
-    let cmdline = GLib.file_get_contents('/proc/'+pid+'/cmdline');
+    const cmdline = GLib.file_get_contents('/proc/'+pid+'/cmdline');
     // get port or assume default
-    let match = /(-p\W*|--port=)(\d{1,5})/.exec(cmdline)
-    let port = match ? parseInt(match[2]) : 7634;
+    const match = /(-p\W*|--port=)(\d{1,5})/.exec(cmdline);
+    const port = match ? parseInt(match[2]) : 7634;
     // use net cat to get data
     return [nc, 'localhost', port.toString()];
   }
@@ -77,35 +79,32 @@ function detectHDDTemp() {
 }
 
 function parseSensorsOutput(txt,parser) {
-  let sensors_output = txt.split("\n");
-  // let sensors_output = txt.split(/\n/);
-  // let sensors_output = txt.split(/\n+/);
-  let feature_label = undefined;
-  let feature_value = undefined;
+  const sensorsOutput = txt.split("\n");
+  let featureLabel = undefined;
+  let featureValue = undefined;
   let sensors = new Array();
   //iterate through each lines
-  for(let i = 0; i < sensors_output.length; i++){
+  for(let i = 0; i < sensorsOutput.length; i++){
     // ignore chipset driver name and 'Adapter:' line for now
     i += 2;
     // get every feature of the chip
-    // while(sensors_output[i]){
-    while(typeof sensors_output[i] !== 'undefined') {
-       // if it is not a continutation of a feature line
-       if(sensors_output[i].indexOf(' ') != 0){
-        let feature = parser(feature_label, feature_value);
+    while(typeof sensorsOutput[i] !== 'undefined') {
+      // if it is not a continutation of a feature line
+      if(sensorsOutput[i].indexOf(' ') != 0) {
+        let feature = parser(featureLabel, featureValue);
         if (feature){
           sensors.push(feature);
           feature = undefined;
         }
-        [feature_label, feature_value] = sensors_output[i].split(':');
-       }
-       else{
-        feature_value += sensors_output[i];
-       }
-       i++;
+        [featureLabel, featureValue] = sensorsOutput[i].split(':');
+      }
+      else {
+        featureValue += sensorsOutput[i];
+      }
+      i++;
     }
   }
-  let feature = parser(feature_label, feature_value);
+  let feature = parser(featureLabel, featureValue);
   if (feature) {
     sensors.push(feature);
     feature = undefined;
@@ -116,7 +115,7 @@ function parseSensorsOutput(txt,parser) {
 function parseSensorsTemperatureLine(label, value) {
   let sensor = undefined;
   if(label != undefined && value != undefined) {
-    let curValue = value.trim().split('  ')[0];
+    const curValue = value.trim().split('  ')[0];
     // does the current value look like a temperature unit (°C)?
     if(curValue.indexOf("C", curValue.length - "C".length) !== -1){
       sensor = new Array();
@@ -135,7 +134,7 @@ function parseSensorsTemperatureLine(label, value) {
 function parseFanRPMLine(label, value) {
   let sensor = undefined;
   if(label != undefined && value != undefined) {
-    let curValue = value.trim().split('  ')[0];
+    const curValue = value.trim().split('  ')[0];
     // does the current value look like a fan rpm line?
     if(curValue.indexOf("RPM", curValue.length - "RPM".length) !== -1){
       sensor = new Array();
@@ -151,7 +150,7 @@ function parseFanRPMLine(label, value) {
 function parseVoltageLine(label, value) {
   let sensor = undefined;
   if(label != undefined && value != undefined) {
-    let curValue = value.trim().split('  ')[0];
+    const curValue = value.trim().split('  ')[0];
     // does the current value look like a voltage line?
     if(curValue.indexOf("V", curValue.length - "V".length) !== -1){
       sensor = new Array();
@@ -166,20 +165,20 @@ function parseVoltageLine(label, value) {
 }
 
 function parseHddTempOutput(txt, sep) {
-  let hddtemp_output = [];
+  let hddtempOutput = [];
   if (txt.indexOf((sep+sep), txt.length - (sep+sep).length) >= 0)
   {
-    hddtemp_output = txt.split(sep+sep);
+    hddtempOutput = txt.split(sep+sep);
   }
 	else
   {
-    hddtemp_output = txt.split("\n");
+    hddtempOutput = txt.split("\n");
   }
 
-  hddtemp_output = hddtemp_output.filter(function(e){ return e; });
+  hddtempOutput = hddtempOutput.filter(function(e){ return e; });
 
   let sensors = new Array();
-  for (let line of hddtemp_output)
+  for (let line of hddtempOutput)
   {
     let sensor = new Array();
     let fields = line.split(sep).filter(function(e){ return e; });
@@ -227,7 +226,7 @@ const Future = new Lang.Class({
 
       this._readStdout();
     } catch(e) {
-      Logger.error(e.toString())
+      Logger.error(e.toString());
     }
   },
 
@@ -263,7 +262,7 @@ const Async = {
       }).bind(null, i)); // i needs to be bound since it will be changed during the next iteration
     }
   }
-}
+};
 
 // routines for handling of udisks2
 const UDisks = {
@@ -281,26 +280,26 @@ const UDisks = {
   },
 
   // calls callback with [{ drive: UDisksDriveProxy, ata: UDisksDriveAtaProxy }, ... ] for every drive that implements both interfaces
-  get_drive_ata_proxies: function(callback) {
+  getDriveAtaProxies: function(callback) {
     Gio.DBusObjectManagerClient.new(Gio.DBus.system, 0, "org.freedesktop.UDisks2", "/org/freedesktop/UDisks2", null, null, function(src, res) {
       try {
-        let objMgr = Gio.DBusObjectManagerClient.new_finish(res); //might throw
+        const objMgr = Gio.DBusObjectManagerClient.new_finish(res); //might throw
 
-        let objPaths = objMgr.get_objects().filter(function(o) {
+        const objPaths = objMgr.get_objects().filter(function(o) {
           return o.get_interface("org.freedesktop.UDisks2.Drive") != null
             && o.get_interface("org.freedesktop.UDisks2.Drive.Ata") != null;
-        }).map(function(o) { return o.get_object_path() });
+        }).map(function(o) { return o.get_object_path(); });
 
         // now create the proxy objects, log and ignore every failure
         Async.map(objPaths, function(obj, callback) {
           // create the proxies object
-          let driveProxy = new UDisksDriveProxy(Gio.DBus.system, "org.freedesktop.UDisks2", obj, function(res, error) {
+          const driveProxy = new UDisksDriveProxy(Gio.DBus.system, "org.freedesktop.UDisks2", obj, function(res, error) {
             if (error) { //very unlikely - we even checked the interfaces before!
               Logger.error('Could not create proxy on ' + obj + ':' + error);
               callback(null);
               return;
             }
-            let ataProxy = new UDisksDriveAtaProxy(Gio.DBus.system, "org.freedesktop.UDisks2", obj, function(res, error) {
+            const ataProxy = new UDisksDriveAtaProxy(Gio.DBus.system, "org.freedesktop.UDisks2", obj, function(res, error) {
               if (error) {
                 Logger.error('Could not create proxy on ' + obj + ':' + error);
                 callback(null);

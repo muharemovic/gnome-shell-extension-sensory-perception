@@ -15,9 +15,9 @@ const Clutter = imports.gi.Clutter;
 const SHELL_VERSION = imports.misc.config.PACKAGE_VERSION;
 
 const Logger = Me.imports.logger.Logger;
+const Metadata = Me.metadata;
 
 let settings;
-let metadata = Me.metadata;
 
 const SensorsItem = new Lang.Class({
   Name: 'SensorsItem',
@@ -79,7 +79,7 @@ const SensorsMenuButton = new Lang.Class({
     }
 
     this.udisksProxies = [];
-    Utilities.UDisks.get_drive_ata_proxies(Lang.bind(this, function(proxies) {
+    Utilities.UDisks.getDriveAtaProxies(Lang.bind(this, function(proxies) {
       this.udisksProxies = proxies;
       this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
     }));
@@ -123,8 +123,8 @@ const SensorsMenuButton = new Lang.Class({
   },
 
   _updateDisplay: function(sensors_output, hddtemp_output){
-    let display_fan_rpm = settings.get_boolean('display-fan-rpm');
-    let display_voltage = settings.get_boolean('display-voltage');
+    const DisplayFanRPM = settings.get_boolean('display-fan-rpm');
+    const DisplayVoltage = settings.get_boolean('display-voltage');
 
     let tempInfo = Array();
     let fanInfo = Array();
@@ -132,11 +132,11 @@ const SensorsMenuButton = new Lang.Class({
 
     tempInfo = Utilities.parseSensorsOutput(sensors_output,Utilities.parseSensorsTemperatureLine);
     tempInfo = tempInfo.filter(Utilities.filterTemperature);
-    if (display_fan_rpm){
+    if (DisplayFanRPM){
       fanInfo = Utilities.parseSensorsOutput(sensors_output,Utilities.parseFanRPMLine);
       fanInfo = fanInfo.filter(Utilities.filterFan);
     }
-    if (display_voltage){
+    if (DisplayVoltage){
       voltageInfo = Utilities.parseSensorsOutput(sensors_output,Utilities.parseVoltageLine);
     }
 
@@ -145,12 +145,14 @@ const SensorsMenuButton = new Lang.Class({
 
     tempInfo = tempInfo.concat(Utilities.UDisks.create_list_from_proxies(this.udisksProxies));
 
-    tempInfo.sort(function(a,b) { return a.label.localeCompare(b.label) });
-    fanInfo.sort(function(a,b) { return a.label.localeCompare(b.label) });
-    voltageInfo.sort(function(a,b) { return a.label.localeCompare(b.label) });
+    tempInfo.sort(function(a,b) { return a.label.localeCompare(b.label); });
+    fanInfo.sort(function(a,b) { return a.label.localeCompare(b.label); });
+    voltageInfo.sort(function(a,b) { return a.label.localeCompare(b.label); });
 
     this.menu.removeAll();
-    let section = new PopupMenu.PopupMenuSection("Temperature");
+
+    const Section = new PopupMenu.PopupMenuSection("Temperature");
+
     if (this.sensorsArgv && tempInfo.length > 0){
       let sensorsList = new Array();
       let sum = 0; //sum
@@ -163,12 +165,12 @@ const SensorsMenuButton = new Lang.Class({
 
         sensorsList.push(new SensorsItem('temperature', temp.label, this._formatTemp(temp.temp)));
         // Logger.debug('Detected Shell version: ' + SHELL_VERSION);
-        let includesCore = SHELL_VERSION < '3.26' ? temp.label.contains('Core') : temp.label.includes('Core');
-        if (includesCore) {
-            if (temp.high <= temp.temp) {
-                allCoreTemps += ("!");
-            }
-            allCoreTemps += _("%s ").format(this._formatTemp(temp.temp));
+        const IncludesCore = SHELL_VERSION < '3.26' ? temp.label.contains('Core') : temp.label.includes('Core');
+        if (IncludesCore) {
+          if (temp.high <= temp.temp) {
+            allCoreTemps += ("!");
+          }
+          allCoreTemps += _("%s ").format(this._formatTemp(temp.temp));
         }
       }
 
@@ -205,11 +207,11 @@ const SensorsMenuButton = new Lang.Class({
             this.statusLabel.set_text(item.getPanelString());
           }
         }
-        section.addMenuItem(item);
+        Section.addMenuItem(item);
       }
 
       // separator
-      section.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+      Section.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
       let item = new PopupMenu.PopupBaseMenuItem();
       // HACK: span and expand parameters don't work as expected on Label, so add an invisible
@@ -217,29 +219,31 @@ const SensorsMenuButton = new Lang.Class({
       item.actor.add(new St.Label({ text: '' }));
       item.actor.add(new St.Label({ text: _("Sensors Settings") }));
       item.connect('activate', Lang.bind(this, function () {
-        let appSys = Shell.AppSystem.get_default();
-        let app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-        let info = app.get_app_info();
-        let timestamp = global.display.get_current_time_roundtrip();
-        info.launch_uris(['extension:///' + metadata.uuid],
-                 global.create_app_launch_context(timestamp, -1));
+        const AppSys = Shell.AppSystem.get_default();
+        const App = AppSys.lookup_app('gnome-shell-extension-prefs.desktop');
+        const AppInfo = App.get_app_info();
+        const Timestamp = global.display.get_current_time_roundtrip();
+        AppInfo.launch_uris(
+          ['extension:///' + Metadata.uuid],
+          global.create_app_launch_context(Timestamp, -1)
+        );
       }));
-      section.addMenuItem(item);
-    }else{
+      Section.addMenuItem(item);
+    } else {
       this.statusLabel.set_text(_("Error"));
 
-      let item = new PopupMenu.PopupMenuItem(
+      const Item = new PopupMenu.PopupMenuItem(
         (this.sensorsArgv
           ? _("Please run sensors-detect as root.")
           : _("Please install lm_sensors.")) + "\n" + _("If this doesn\'t help, click here to report with your sensors output!")
       );
-      item.connect('activate',function() {
-        Util.spawn(["xdg-open", metadata.url + '/issues']);
+      Item.connect('activate',function() {
+        Util.spawn(["xdg-open", Metadata.url + '/issues']);
       });
-      section.addMenuItem(item);
+      Section.addMenuItem(Item);
     }
 
-    this.menu.addMenuItem(section);
+    this.menu.addMenuItem(Section);
   },
 
   _toFahrenheit: function(c){
