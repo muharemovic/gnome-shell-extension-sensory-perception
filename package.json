@@ -4,7 +4,10 @@
   "description": "Shows CPU temperature, disk temperature, video card temperature, voltage and fan RPM (forked from xtranophilist/gnome-shell-extension-sensors)",
   "main": "extension.js",
   "scripts": {
-    "test": "eslint ."
+    "build": "sh build-zip.sh",
+    "test": "eslint .",
+    "watch-logs": "journalctl -f | grep sensory-perception",
+    "watch-shell-logs": "journalctl /usr/bin/gnome-shell -f -o cat"
   },
   "repository": {
     "type": "git",
@@ -28,6 +31,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1"
+    "eslint-plugin-standard": "^3.0.1",
+    "underscore-cli": "^0.2.19"
   }
 }
