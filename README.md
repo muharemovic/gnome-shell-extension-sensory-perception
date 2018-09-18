@@ -23,3 +23,10 @@ One of the best ways to troubleshoot is to watch the logs with `journalctl` and 
 ```
 journalctl --since="`date '+%Y-%m-%d %H:%M'`" -f | grep sensory-perception
 ```
+
+## Build a zip file for distribution
+
+    # Check for lints first
+    npm run test
+    # Then build a zip file
+    npm run build
