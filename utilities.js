@@ -5,6 +5,7 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
+const Logger = Me.imports.logger.Logger;
 
 const UDisksDriveProxy = Gio.DBusProxy.makeProxyWrapper(
 '<node>\
@@ -21,8 +22,9 @@ const UDisksDriveAtaProxy = Gio.DBusProxy.makeProxyWrapper(
 </node>');
 
 function detectSensors() {
-  let path = GLib.find_program_in_path('sensors');
-  return path ? [path] : undefined;
+  Logger.debug('Attempting to find sensors in path')
+  let sensorsProg = GLib.find_program_in_path('sensors')
+  return typeof sensorsProg !== 'undefined' ? [sensorsProg] : undefined;
 }
 
 function detectHDDTemp() {
@@ -32,7 +34,6 @@ function detectHDDTemp() {
     if(!GLib.spawn_command_line_sync(hddtempArgv)[3])
       return [hddtempArgv];
   }
-
   // doesn't seem to be the case… is it running as a daemon?
 	// Check first for systemd
   let systemctl = GLib.find_program_in_path('systemctl');
@@ -77,6 +78,8 @@ function detectHDDTemp() {
 
 function parseSensorsOutput(txt,parser) {
   let sensors_output = txt.split("\n");
+  // let sensors_output = txt.split(/\n/);
+  // let sensors_output = txt.split(/\n+/);
   let feature_label = undefined;
   let feature_value = undefined;
   let sensors = new Array();
@@ -85,7 +88,8 @@ function parseSensorsOutput(txt,parser) {
     // ignore chipset driver name and 'Adapter:' line for now
     i += 2;
     // get every feature of the chip
-    while(sensors_output[i]){
+    // while(sensors_output[i]){
+    while(typeof sensors_output[i] !== 'undefined') {
        // if it is not a continutation of a feature line
        if(sensors_output[i].indexOf(' ') != 0){
         let feature = parser(feature_label, feature_value);
@@ -175,7 +179,7 @@ function parseHddTempOutput(txt, sep) {
   hddtemp_output = hddtemp_output.filter(function(e){ return e; });
 
   let sensors = new Array();
-  for each(let line in hddtemp_output)
+  for (let line of hddtemp_output)
   {
     let sensor = new Array();
     let fields = line.split(sep).filter(function(e){ return e; });
@@ -204,7 +208,7 @@ const Future = new Lang.Class({
   Name: 'Future',
 
 	_init: function(argv, callback) {
-    try{
+    try {
       this._callback = callback;
       let [exit, pid, stdin, stdout, stderr] =
         GLib.spawn_async_with_pipes(null, /* cwd */
@@ -222,18 +226,18 @@ const Future = new Lang.Class({
       }));
 
       this._readStdout();
-    } catch(e){
-      global.log(e.toString());
+    } catch(e) {
+      Logger.error(e.toString())
     }
   },
 
   _readStdout: function(){
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
       if (stream.fill_finish(result) == 0){
-        try{
+        try {
           this._callback(stream.peek_buffer().toString());
-        }catch(e){
-          global.log(e.toString());
+        } catch(e) {
+          Logger.error(e.toString());
         }
         this._stdout.close(null);
         this._stderr.close(null);
@@ -259,11 +263,6 @@ const Async = {
       }).bind(null, i)); // i needs to be bound since it will be changed during the next iteration
     }
   }
-}
-
-function debug(str){
-  //tail -f -n100 ~/.cache/gdm/session.log | grep temperature
-  print ('LOG ' + Me.metadata.uuid + ': ' + str);
 }
 
 // routines for handling of udisks2
@@ -297,13 +296,13 @@ const UDisks = {
           // create the proxies object
           let driveProxy = new UDisksDriveProxy(Gio.DBus.system, "org.freedesktop.UDisks2", obj, function(res, error) {
             if (error) { //very unlikely - we even checked the interfaces before!
-              debug("Could not create proxy on "+obj+":"+error);
+              Logger.error('Could not create proxy on ' + obj + ':' + error);
               callback(null);
               return;
             }
             let ataProxy = new UDisksDriveAtaProxy(Gio.DBus.system, "org.freedesktop.UDisks2", obj, function(res, error) {
               if (error) {
-                debug("Could not create proxy on "+obj+":"+error);
+                Logger.error('Could not create proxy on ' + obj + ':' + error);
                 callback(null);
                 return;
               }
@@ -316,7 +315,7 @@ const UDisks = {
           callback(proxies.filter(function(a) { return a != null; }));
         });
       } catch (e) {
-        debug("Could not find UDisks objects: "+e);
+        Logger.error('Could not find UDisks objects: ' + e);
       }
     });
   }

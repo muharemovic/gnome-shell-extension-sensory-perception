@@ -14,6 +14,8 @@ const _ = Gettext.gettext;
 const Clutter = imports.gi.Clutter;
 const SHELL_VERSION = imports.misc.config.PACKAGE_VERSION;
 
+const Logger = Me.imports.logger.Logger;
+
 let settings;
 let metadata = Me.metadata;
 
@@ -102,7 +104,8 @@ const SensorsMenuButton = new Lang.Class({
   },
 
   _querySensors: function(){
-    if (this.sensorsArgv){
+    if (typeof this.sensorsArgv !== 'undefined'){
+      // Logger.debug('Querying sensors...')
       this._sensorsFuture = new Utilities.Future(this.sensorsArgv, Lang.bind(this,function(stdout){
         this._sensorsOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
@@ -110,7 +113,7 @@ const SensorsMenuButton = new Lang.Class({
       }));
     }
 
-    if (this.hddtempArgv){
+    if (typeof this.hddtempArgv !== 'undefined'){
       this._hddtempFuture = new Utilities.Future(this.hddtempArgv, Lang.bind(this,function(stdout){
         this._hddtempOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
@@ -153,13 +156,13 @@ const SensorsMenuButton = new Lang.Class({
       let sum = 0; //sum
       let max = 0; //max temp
       let allCoreTemps = '';
-      for each (let temp in tempInfo){
+      for (let temp of tempInfo){
         sum += temp.temp;
         if (temp.temp > max)
           max = temp.temp;
 
         sensorsList.push(new SensorsItem('temperature', temp.label, this._formatTemp(temp.temp)));
-        // global.log('[DEBUG] Detected Shell version: ' + SHELL_VERSION);
+        // Logger.debug('Detected Shell version: ' + SHELL_VERSION);
         let includesCore = SHELL_VERSION < '3.26' ? temp.label.contains('Core') : temp.label.includes('Core');
         if (includesCore) {
             if (temp.high <= temp.temp) {
@@ -181,19 +184,19 @@ const SensorsMenuButton = new Lang.Class({
           sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
 
-      for each (let fan in fanInfo){
+      for (let fan of fanInfo){
         sensorsList.push(new SensorsItem('fan', fan.label, _("%drpm").format(fan['rpm'])));
       }
       if (fanInfo.length > 0 && voltageInfo.length > 0){
         sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
-      for each (let voltage in voltageInfo){
+      for (let voltage of voltageInfo){
         sensorsList.push(new SensorsItem('voltage', voltage.label, _("%s%.2fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
       }
 
       this.statusLabel.set_text(_("N/A")); // Just in case
 
-      for each (let item in sensorsList) {
+      for (let item of sensorsList) {
         if(item instanceof SensorsItem) {
           if (settings.get_string('main-sensor') == item.getLabel()) {
 

@@ -31,7 +31,7 @@ const SensorsPrefsWidget = new GObject.Class({
     this._settings = Convenience.getSettings();
 
     this.attach(new Gtk.Label({ label: _("Poll sensors every (in seconds)") }), 0, 0, 1, 1);
-    let update_time = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 10, 1);
+    let update_time = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 64, 1);
     update_time.set_value(this._settings.get_int('update-time'));
     update_time.set_digits(0);
     update_time.set_hexpand(true);
@@ -121,7 +121,7 @@ const SensorsPrefsWidget = new GObject.Class({
     // ComboBox to select which sensor to show in panel
     this._sensorSelector = new Gtk.ComboBox({ model: this._model });
     this._sensorSelector.set_active_iter(this._getActiveSensorIter());
-    this._sensorSelector.set_row_separator_func(Lang.bind(this, this._comboBoxSeparator), null, null);
+    this._sensorSelector.set_row_separator_func(Lang.bind(this, this._comboBoxSeparator));
 
     let renderer = new Gtk.CellRendererText();
     this._sensorSelector.pack_start(renderer, true);
@@ -149,7 +149,7 @@ const SensorsPrefsWidget = new GObject.Class({
   },
 
   _appendMultipleItems: function(sensorInfo) {
-    for each (let sensor in sensorInfo) {
+    for (let sensor of sensorInfo) {
       this._model.set(this._model.append(), [modelColumn.label], [sensor['label']]);
     }
   },
@@ -204,6 +204,7 @@ const SensorsPrefsWidget = new GObject.Class({
 
   _getActiveSensorIter: function() {
     /* Get the first iter in the list */
+    let success, iter;
     [success, iter] = this._model.get_iter_first();
     let sensorLabel = this._model.get_value(iter, 0);
 
