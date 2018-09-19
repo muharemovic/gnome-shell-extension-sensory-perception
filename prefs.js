@@ -11,25 +11,25 @@ const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 
 const BoolSettings = {
-  display_degree_sign: {
+  displayDegreeSign: {
     name: "display-degree-sign",
     label: _("Display temperature unit"),
     help: _("Show temperature unit in panel and menu.")
   },
-  display_decimal_value: {
+  displayDecimalValue: {
     name: "display-decimal-value",
     label: _("Display decimal value"),
     help: _("Show one digit after decimal.")
   },
-    show_hdd_temp: {
+  showHddTemp: {
     name: "display-hdd-temp",
     label: _("Display drive temperature"),
   },
-    show_fan_rpm: {
+  showFanRpm: {
     name: "display-fan-rpm",
     label: _("Display fan speed"),
   },
-    show_voltage: {
+  showVoltage: {
     name: "display-voltage",
     label: _("Display power supply voltage"),
   },
@@ -80,7 +80,7 @@ const SensorsPrefsWidget = new GObject.Class({
     for (const boolSetting in BoolSettings){
       const setting = BoolSettings[boolSetting];
       const settingLabel = new Gtk.Label({ label: setting.label });
-      const settingSwitch = new Gtk.Switch({active: this._settings.get_boolean(setting.name)});
+      const settingSwitch = new Gtk.Switch({ active: this._settings.get_boolean(setting.name) });
       const settings = this._settings;
       settingSwitch.connect('notify::active', function(button) {
         settings.set_boolean(setting.name, button.active);
@@ -132,7 +132,7 @@ const SensorsPrefsWidget = new GObject.Class({
     this.attach(this._sensorSelector, 1, counter , 1, 1);
 
     const settings = this._settings;
-    const checkButton = new Gtk.CheckButton({label: _("Display sensor label")});
+    const checkButton = new Gtk.CheckButton({ label: _("Display sensor label") });
     checkButton.set_active(settings.get_boolean('display-label'));
     checkButton.connect('toggled', function () {
       settings.set_boolean('display-label', checkButton.get_active());
@@ -149,7 +149,7 @@ const SensorsPrefsWidget = new GObject.Class({
   },
 
   _appendMultipleItems: function(sensorInfo) {
-    for (let sensor of sensorInfo) {
+    for (const sensor of sensorInfo) {
       this._model.set(this._model.append(), [modelColumn.label], [sensor['label']]);
     }
   },
@@ -164,7 +164,7 @@ const SensorsPrefsWidget = new GObject.Class({
       const sensorsOutput = GLib.spawn_command_line_sync(sensorsCmd.join(' '));
       if(sensorsOutput[0])
       {
-        let output = sensorsOutput[1].toString();
+        const output = sensorsOutput[1].toString();
         let tempInfo = Utilities.parseSensorsOutput(output,Utilities.parseSensorsTemperatureLine);
         tempInfo = tempInfo.filter(Utilities.filterTemperature);
         this._appendMultipleItems(tempInfo);
@@ -175,7 +175,7 @@ const SensorsPrefsWidget = new GObject.Class({
           this._appendMultipleItems(fanInfo);
         }
         if (this._display_voltage){
-          let voltageInfo = Utilities.parseSensorsOutput(output,Utilities.parseVoltageLine);
+          const voltageInfo = Utilities.parseSensorsOutput(output,Utilities.parseVoltageLine);
           this._appendMultipleItems(voltageInfo);
         }
       }
@@ -185,10 +185,10 @@ const SensorsPrefsWidget = new GObject.Class({
   _getHddTempLabels: function() {
     const hddtempCmd = Utilities.detectHDDTemp();
     if(hddtempCmd){
-      let hddtemp_output = GLib.spawn_command_line_sync(hddtempCmd.join(' '))
-      if(hddtemp_output[0]){
-        let hddTempInfo = Utilities.parseHddTempOutput(
-          hddtemp_output[1].toString(),
+      const hddtempOutput = GLib.spawn_command_line_sync(hddtempCmd.join(' '));
+      if(hddtempOutput[0]){
+        const hddTempInfo = Utilities.parseHddTempOutput(
+          hddtempOutput[1].toString(),
           !(/nc$/.exec(hddtempCmd[0])) ? ': ' : '|'
         );
         this._appendMultipleItems(hddTempInfo);
@@ -198,7 +198,7 @@ const SensorsPrefsWidget = new GObject.Class({
 
   _getUdisksLabels: function() {
     Utilities.UDisks.getDriveAtaProxies((function(proxies) {
-      let list = Utilities.UDisks.create_list_from_proxies(proxies);
+      const list = Utilities.UDisks.createListFromProxies(proxies);
 
       this._appendMultipleItems(list);
     }).bind(this));
@@ -208,11 +208,11 @@ const SensorsPrefsWidget = new GObject.Class({
     /* Get the first iter in the list */
     let success, iter;
     [success, iter] = this._model.get_iter_first();
-    let sensorLabel = this._model.get_value(iter, 0);
+    // let sensorLabel = this._model.get_value(iter, 0);
 
     while (success) {
       /* Walk through the list, reading each row */
-      let sensorLabel = this._model.get_value(iter, 0);
+      const sensorLabel = this._model.get_value(iter, 0);
       if(sensorLabel == this._settings.get_string('main-sensor'))
         break;
 
@@ -232,18 +232,18 @@ const SensorsPrefsWidget = new GObject.Class({
   },
 
   _onSelectorChanged: function (comboBox) {
-    let [success, iter] = comboBox.get_active_iter();
+    const [success, iter] = comboBox.get_active_iter();
     if (!success)
       return;
 
-    let label = this._model.get_value(iter, modelColumn.label);
+    const label = this._model.get_value(iter, modelColumn.label);
     this._settings.set_string('main-sensor', label);
   },
 
 });
 
 function buildPrefsWidget() {
-  let widget = new SensorsPrefsWidget();
+  const widget = new SensorsPrefsWidget();
   widget.show_all();
   return widget;
 }

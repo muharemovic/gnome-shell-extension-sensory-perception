@@ -36,8 +36,8 @@ const SensorsItem = new Lang.Class({
       icon_name: 'sensors-'+type+'-symbolic',
       icon_size: 16
     }));
-    this.actor.add(new St.Label({text: label}));
-    this.actor.add(new St.Label({text: value}), {align: St.Align.END});
+    this.actor.add(new St.Label({ text: label }));
+    this.actor.add(new St.Label({ text: value }), { align: St.Align.END });
   },
 
   getPanelString: function() {
@@ -122,7 +122,7 @@ const SensorsMenuButton = new Lang.Class({
     }
   },
 
-  _updateDisplay: function(sensors_output, hddtemp_output){
+  _updateDisplay: function(sensorsOutput, hddtempOutput){
     const DisplayFanRPM = settings.get_boolean('display-fan-rpm');
     const DisplayVoltage = settings.get_boolean('display-voltage');
 
@@ -130,20 +130,20 @@ const SensorsMenuButton = new Lang.Class({
     let fanInfo = Array();
     let voltageInfo = Array();
 
-    tempInfo = Utilities.parseSensorsOutput(sensors_output,Utilities.parseSensorsTemperatureLine);
+    tempInfo = Utilities.parseSensorsOutput(sensorsOutput,Utilities.parseSensorsTemperatureLine);
     tempInfo = tempInfo.filter(Utilities.filterTemperature);
     if (DisplayFanRPM){
-      fanInfo = Utilities.parseSensorsOutput(sensors_output,Utilities.parseFanRPMLine);
+      fanInfo = Utilities.parseSensorsOutput(sensorsOutput,Utilities.parseFanRPMLine);
       fanInfo = fanInfo.filter(Utilities.filterFan);
     }
     if (DisplayVoltage){
-      voltageInfo = Utilities.parseSensorsOutput(sensors_output,Utilities.parseVoltageLine);
+      voltageInfo = Utilities.parseSensorsOutput(sensorsOutput,Utilities.parseVoltageLine);
     }
 
     if(this.hddtempArgv)
-      tempInfo = tempInfo.concat(Utilities.parseHddTempOutput(hddtemp_output, !(/nc$/.exec(this.hddtempArgv[0])) ? ': ' : '|'));
+      tempInfo = tempInfo.concat(Utilities.parseHddTempOutput(hddtempOutput, !(/nc$/.exec(this.hddtempArgv[0])) ? ': ' : '|'));
 
-    tempInfo = tempInfo.concat(Utilities.UDisks.create_list_from_proxies(this.udisksProxies));
+    tempInfo = tempInfo.concat(Utilities.UDisks.createListFromProxies(this.udisksProxies));
 
     tempInfo.sort(function(a,b) { return a.label.localeCompare(b.label); });
     fanInfo.sort(function(a,b) { return a.label.localeCompare(b.label); });
@@ -154,11 +154,11 @@ const SensorsMenuButton = new Lang.Class({
     const Section = new PopupMenu.PopupMenuSection("Temperature");
 
     if (this.sensorsArgv && tempInfo.length > 0){
-      let sensorsList = new Array();
+      const sensorsList = new Array();
       let sum = 0; //sum
       let max = 0; //max temp
       let allCoreTemps = '';
-      for (let temp of tempInfo){
+      for (const temp of tempInfo){
         sum += temp.temp;
         if (temp.temp > max)
           max = temp.temp;
@@ -186,19 +186,19 @@ const SensorsMenuButton = new Lang.Class({
           sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
 
-      for (let fan of fanInfo){
+      for (const fan of fanInfo){
         sensorsList.push(new SensorsItem('fan', fan.label, _("%drpm").format(fan['rpm'])));
       }
       if (fanInfo.length > 0 && voltageInfo.length > 0){
         sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
       }
-      for (let voltage of voltageInfo){
+      for (const voltage of voltageInfo){
         sensorsList.push(new SensorsItem('voltage', voltage.label, _("%s%.2fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
       }
 
       this.statusLabel.set_text(_("N/A")); // Just in case
 
-      for (let item of sensorsList) {
+      for (const item of sensorsList) {
         if(item instanceof SensorsItem) {
           if (settings.get_string('main-sensor') == item.getLabel()) {
 
@@ -213,7 +213,7 @@ const SensorsMenuButton = new Lang.Class({
       // separator
       Section.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-      let item = new PopupMenu.PopupBaseMenuItem();
+      const item = new PopupMenu.PopupBaseMenuItem();
       // HACK: span and expand parameters don't work as expected on Label, so add an invisible
       // Label to switch columns and not totally break the layout.
       item.actor.add(new St.Label({ text: '' }));

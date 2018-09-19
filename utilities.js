@@ -82,7 +82,7 @@ function parseSensorsOutput(txt,parser) {
   const sensorsOutput = txt.split("\n");
   let featureLabel = undefined;
   let featureValue = undefined;
-  let sensors = new Array();
+  const sensors = new Array();
   //iterate through each lines
   for(let i = 0; i < sensorsOutput.length; i++){
     // ignore chipset driver name and 'Adapter:' line for now
@@ -166,22 +166,18 @@ function parseVoltageLine(label, value) {
 
 function parseHddTempOutput(txt, sep) {
   let hddtempOutput = [];
-  if (txt.indexOf((sep+sep), txt.length - (sep+sep).length) >= 0)
-  {
+  if (txt.indexOf((sep+sep), txt.length - (sep+sep).length) >= 0) {
     hddtempOutput = txt.split(sep+sep);
-  }
-	else
-  {
+  } else {
     hddtempOutput = txt.split("\n");
   }
 
   hddtempOutput = hddtempOutput.filter(function(e){ return e; });
 
-  let sensors = new Array();
-  for (let line of hddtempOutput)
-  {
-    let sensor = new Array();
-    let fields = line.split(sep).filter(function(e){ return e; });
+  const sensors = new Array();
+  for (const line of hddtempOutput) {
+    const sensor = new Array();
+    const fields = line.split(sep).filter(function(e){ return e; });
     sensor['label'] = _("Drive %s").format(fields[0].split('/').pop());
     sensor['temp'] = parseFloat(fields[2]);
     //push only if the temp is a Number
@@ -206,19 +202,20 @@ function filterVoltage(voltageInfo) {
 const Future = new Lang.Class({
   Name: 'Future',
 
-	_init: function(argv, callback) {
+  _init: function(argv, callback) {
     try {
       this._callback = callback;
-      let [exit, pid, stdin, stdout, stderr] =
-        GLib.spawn_async_with_pipes(null, /* cwd */
-                      argv, /* args */
-                      null, /* env */
-                      GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                      null /* child_setup */);
-      this._stdout = new Gio.UnixInputStream({fd: stdout, close_fd: true});
-      this._dataStdout = new Gio.DataInputStream({base_stream: this._stdout});
-      this._stderr = new Gio.UnixInputStream({fd: stderr, close_fd: true});
-      new Gio.UnixOutputStream({fd: stdin, close_fd: true}).close(null);
+      const [exit, pid, stdin, stdout, stderr] = GLib.spawn_async_with_pipes(
+        null, /* cwd */
+        argv, /* args */
+        null, /* env */
+        GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+        null /* child_setup */
+      );
+      this._stdout = new Gio.UnixInputStream({ fd: stdout, close_fd: true });
+      this._dataStdout = new Gio.DataInputStream({ base_stream: this._stdout });
+      this._stderr = new Gio.UnixInputStream({ fd: stderr, close_fd: true });
+      new Gio.UnixOutputStream({ fd: stdin, close_fd: true }).close(null);
 
       this._childWatch = GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, Lang.bind(this, function(pid, status, requestObj) {
         GLib.source_remove(this._childWatch);
@@ -254,7 +251,7 @@ const Async = {
   // mapping will be done in parallel
   map: function(arr, mapClb /* function(in, successClb)) */, resClb /* function(result) */) {
     let counter = arr.length;
-    let result = [];
+    const result = [];
     for (let i = 0; i < arr.length; ++i) {
       mapClb(arr[i], (function(i, newVal) {
         result[i] = newVal;
@@ -267,7 +264,7 @@ const Async = {
 // routines for handling of udisks2
 const UDisks = {
   // creates a list of sensor objects from the list of proxies given
-  create_list_from_proxies: function(proxies) {
+  createListFromProxies: function(proxies) {
     return proxies.filter(function(proxy) {
       // 0K means no data available
       return proxy.ata.SmartTemperature > 0;
