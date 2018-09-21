@@ -1,3 +1,4 @@
+const ByteArray = imports.byteArray;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
@@ -199,7 +200,7 @@ function filterVoltage(voltageInfo) {
   return true;
 }
 
-const Future = new Lang.Class({
+var Future = new Lang.Class({
   Name: 'Future',
 
   _init: function(argv, callback) {
@@ -231,7 +232,7 @@ const Future = new Lang.Class({
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
       if (stream.fill_finish(result) == 0){
         try {
-          this._callback(stream.peek_buffer().toString());
+          this._callback(ByteArray.toString(stream.peek_buffer()));
         } catch(e) {
           Logger.error(e.toString());
         }
@@ -262,7 +263,7 @@ const Async = {
 };
 
 // routines for handling of udisks2
-const UDisks = {
+var UDisks = {
   // creates a list of sensor objects from the list of proxies given
   createListFromProxies: function(proxies) {
     return proxies.filter(function(proxy) {
