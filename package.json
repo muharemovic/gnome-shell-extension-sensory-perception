@@ -6,8 +6,9 @@
   "scripts": {
     "build": "sh build-zip.sh",
     "test": "eslint .",
-    "watch-logs": "journalctl -f | grep sensory-perception",
-    "watch-shell-logs": "journalctl /usr/bin/gnome-shell -f -o cat"
+    "view-logs": "journalctl --boot --grep sensory-perception",
+    "watch-logs": "journalctl --boot --follow --grep sensory-perception",
+    "watch-shell-logs": "journalctl /usr/bin/gnome-shell --follow"
   },
   "repository": {
     "type": "git",
