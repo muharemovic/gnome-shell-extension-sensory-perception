@@ -25,8 +25,13 @@ const UDisksDriveAtaProxy = Gio.DBusProxy.makeProxyWrapper(
 );
 
 function detectSensors() {
-  Logger.debug('Attempting to find sensors in path');
+  // Logger.debug('Attempting to find sensors in path...');
   const sensorsProg = GLib.find_program_in_path('sensors');
+  if (typeof sensorsProg !== 'undefined') {
+    // Logger.debug('Found sensors at ' + sensorsProg);
+  } else {
+    Logger.error('Program sensors not found!');
+  }
   return typeof sensorsProg !== 'undefined' ? [sensorsProg] : undefined;
 }
 
@@ -224,7 +229,7 @@ var Future = new Lang.Class({
 
       this._readStdout();
     } catch(e) {
-      Logger.error(e.toString());
+      Logger.error('Future _init: ' + e.toString());
     }
   },
 
@@ -233,12 +238,14 @@ var Future = new Lang.Class({
       if (stream.fill_finish(result) == 0){
         try {
           if (stream.peek_buffer() instanceof Uint8Array) {
+            // Logger.debug('Using ByteArray.toString()')
             this._callback(ByteArray.toString(stream.peek_buffer()));
           } else {
+            // Logger.debug('Using #toString()')
             this._callback(stream.peek_buffer().toString());
           }
         } catch(e) {
-          Logger.error(e.toString());
+          Logger.error('Future _readStdout: ' + e.toString());
         }
         this._stdout.close(null);
         this._stderr.close(null);

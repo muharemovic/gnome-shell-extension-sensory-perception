@@ -162,8 +162,7 @@ const SensorsPrefsWidget = new GObject.Class({
     const sensorsCmd = Utilities.detectSensors();
     if(sensorsCmd) {
       const sensorsOutput = GLib.spawn_command_line_sync(sensorsCmd.join(' '));
-      if(sensorsOutput[0])
-      {
+      if(sensorsOutput[0]) {
         const output = sensorsOutput[1].toString();
         let tempInfo = Utilities.parseSensorsOutput(output,Utilities.parseSensorsTemperatureLine);
         tempInfo = tempInfo.filter(Utilities.filterTemperature);

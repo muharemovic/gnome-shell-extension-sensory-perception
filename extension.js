@@ -104,16 +104,18 @@ const SensorsMenuButton = new Lang.Class({
   },
 
   _querySensors: function(){
-    if (typeof this.sensorsArgv !== 'undefined'){
-      // Logger.debug('Querying sensors...')
-      this._sensorsFuture = new Utilities.Future(this.sensorsArgv, Lang.bind(this,function(stdout){
+    if (typeof this.sensorsArgv !== 'undefined') {
+      // Logger.debug('Querying sensors with ' + this.sensorsArgv);
+      this._sensorsFuture = new Utilities.Future(this.sensorsArgv, Lang.bind(this,function(stdout) {
         this._sensorsOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
         this._sensorsFuture = undefined;
       }));
+    } else {
+      Logger.error('SensorsMenuButton _querySensors: sensors program not found!');
     }
 
-    if (typeof this.hddtempArgv !== 'undefined'){
+    if (typeof this.hddtempArgv !== 'undefined') {
       this._hddtempFuture = new Utilities.Future(this.hddtempArgv, Lang.bind(this,function(stdout){
         this._hddtempOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
