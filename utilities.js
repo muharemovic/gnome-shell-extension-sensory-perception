@@ -232,7 +232,11 @@ var Future = new Lang.Class({
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
       if (stream.fill_finish(result) == 0){
         try {
-          this._callback(ByteArray.toString(stream.peek_buffer()));
+          if (stream.peek_buffer() instanceof Uint8Array) {
+            this._callback(ByteArray.toString(stream.peek_buffer()));
+          } else {
+            this._callback(stream.peek_buffer().toString());
+          }
         } catch(e) {
           Logger.error(e.toString());
         }
