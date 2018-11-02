@@ -13,5 +13,5 @@ UUID="$(underscore extract --in metadata.json --outfmt text 'uuid')"
 FILENAME="$UUID-v$VERSION.zip"
 
 printf "Zipping into $FILENAME...\n"
-zip -r $FILENAME icons po schemas *.js *.json LICENSE README.md
+zip -r $FILENAME icons po schemas *.js metadata.json LICENSE README.md
 printf "done!\n"
