@@ -24,6 +24,17 @@ const UDisksDriveAtaProxy = Gio.DBusProxy.makeProxyWrapper(
   </node>'
 );
 
+var CmdHelper = {
+  run: function (cmdString) {
+    let output = GLib.spawn_command_line_sync(cmdString)[1]
+    if (output instanceof Uint8Array) {
+      return ByteArray.toString(output).trim()
+    } else {
+      return output.toString().trim()
+    }
+  }
+}
+
 function detectSensors() {
   // Logger.debug('Attempting to find sensors in path...');
   const sensorsProg = GLib.find_program_in_path('sensors');
@@ -50,9 +61,9 @@ function detectHDDTemp() {
   let pid = undefined;
 
   if(systemctl) {
-    const activeState = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p ActiveState")[1].toString().trim();
+    const activeState = CmdHelper.run(systemctl + " show hddtemp.service -p ActiveState");
     if(activeState == "ActiveState=active") {
-      const output = GLib.spawn_command_line_sync(systemctl + " show hddtemp.service -p MainPID")[1].toString().trim();
+      const output = CmdHelper.run(systemctl + " show hddtemp.service -p MainPID");
 
       if(output.length && output.split("=").length == 2) {
         pid = Number(output.split("=")[1].trim());
@@ -62,7 +73,7 @@ function detectHDDTemp() {
 
   // systemd isn't used on this system, try sysvinit instead
   if(!pid && pidof) {
-    const output = GLib.spawn_command_line_sync("pidof hddtemp")[1].toString().trim();
+    const output = CmdHelper.run("pidof hddtemp");
 
     if(output.length) {
       pid = Number(output.trim());
