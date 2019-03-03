@@ -24,16 +24,25 @@ const UDisksDriveAtaProxy = Gio.DBusProxy.makeProxyWrapper(
   </node>'
 );
 
-var CmdHelper = {
+const CmdHelper = {
+  nc: GLib.find_program_in_path('nc'),
+  pidof: GLib.find_program_in_path('pidof'),
+  systemctl: GLib.find_program_in_path('systemctl'),
+
   run: function (cmdString) {
-    let output = GLib.spawn_command_line_sync(cmdString)[1]
+    const output = GLib.spawn_command_line_sync(cmdString)[1];
+
     if (output instanceof Uint8Array) {
-      return ByteArray.toString(output).trim()
+      return ByteArray.toString(output).trim();
     } else {
-      return output.toString().trim()
+      return output.toString().trim();
     }
+  },
+
+  systemctlRun: function (arg) {
+    return this.run(this.systemctl + arg);
   }
-}
+};
 
 function detectSensors() {
   // Logger.debug('Attempting to find sensors in path...');
@@ -53,17 +62,15 @@ function detectHDDTemp() {
     if(!GLib.spawn_command_line_sync(hddtempArgv)[3])
       return [hddtempArgv];
   }
+
   // doesn't seem to be the case… is it running as a daemon?
   // Check first for systemd
-  const systemctl = GLib.find_program_in_path('systemctl');
-  const pidof = GLib.find_program_in_path('pidof');
-  const nc = GLib.find_program_in_path('nc');
   let pid = undefined;
 
-  if(systemctl) {
-    const activeState = CmdHelper.run(systemctl + " show hddtemp.service -p ActiveState");
+  if(CmdHelper.systemctl) {
+    const activeState = CmdHelper.systemctlRun(" show hddtemp.service -p ActiveState");
     if(activeState == "ActiveState=active") {
-      const output = CmdHelper.run(systemctl + " show hddtemp.service -p MainPID");
+      const output = CmdHelper.systemctlRun(" show hddtemp.service -p MainPID");
 
       if(output.length && output.split("=").length == 2) {
         pid = Number(output.split("=")[1].trim());
@@ -72,7 +79,7 @@ function detectHDDTemp() {
   }
 
   // systemd isn't used on this system, try sysvinit instead
-  if(!pid && pidof) {
+  if(!pid && CmdHelper.pidof) {
     const output = CmdHelper.run("pidof hddtemp");
 
     if(output.length) {
@@ -80,7 +87,7 @@ function detectHDDTemp() {
     }
   }
 
-  if(nc && pid)
+  if(CmdHelper.nc && pid)
   {
     // get daemon command line
     const cmdline = GLib.file_get_contents('/proc/'+pid+'/cmdline');
@@ -88,7 +95,7 @@ function detectHDDTemp() {
     const match = /(-p\W*|--port=)(\d{1,5})/.exec(cmdline);
     const port = match ? parseInt(match[2]) : 7634;
     // use net cat to get data
-    return [nc, 'localhost', port.toString()];
+    return [CmdHelper.nc, 'localhost', port.toString()];
   }
 
   // not found
