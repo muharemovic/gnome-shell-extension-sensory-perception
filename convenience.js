@@ -3,11 +3,11 @@
 const Gettext = imports.gettext;
 const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
-
 const Config = imports.misc.config;
 const ExtensionUtils = imports.misc.extensionUtils;
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension();
+
 /**
  * initTranslations:
  * @domain: (optional): the gettext domain to use

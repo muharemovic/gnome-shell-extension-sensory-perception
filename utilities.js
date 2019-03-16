@@ -1,9 +1,10 @@
 const ByteArray = imports.byteArray;
+const ExtensionUtils = imports.misc.extensionUtils;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
-const Lang = imports.lang;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+
+const Me = ExtensionUtils.getCurrentExtension();
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 const Logger = Me.imports.logger.Logger;
@@ -29,7 +30,7 @@ const CmdHelper = {
   pidof: GLib.find_program_in_path('pidof'),
   systemctl: GLib.find_program_in_path('systemctl'),
 
-  run: function (cmdString) {
+  run(cmdString) {
     const output = GLib.spawn_command_line_sync(cmdString)[1];
 
     if (output instanceof Uint8Array) {
@@ -39,7 +40,7 @@ const CmdHelper = {
     }
   },
 
-  systemctlRun: function (arg) {
+  systemctlRun(arg) {
     return this.run(this.systemctl + arg);
   }
 };
@@ -108,7 +109,7 @@ function parseSensorsOutput(txt,parser) {
   let featureValue = undefined;
   const sensors = new Array();
   //iterate through each lines
-  for(let i = 0; i < sensorsOutput.length; i++){
+  for(let i = 0; i < sensorsOutput.length; i++) {
     // ignore chipset driver name and 'Adapter:' line for now
     i += 2;
     // get every feature of the chip
@@ -116,7 +117,7 @@ function parseSensorsOutput(txt,parser) {
       // if it is not a continutation of a feature line
       if(sensorsOutput[i].indexOf(' ') != 0) {
         let feature = parser(featureLabel, featureValue);
-        if (feature){
+        if (feature) {
           sensors.push(feature);
           feature = undefined;
         }
@@ -141,7 +142,7 @@ function parseSensorsTemperatureLine(label, value) {
   if(label != undefined && value != undefined) {
     const curValue = value.trim().split('  ')[0];
     // does the current value look like a temperature unit (°C)?
-    if(curValue.indexOf("C", curValue.length - "C".length) !== -1){
+    if(curValue.indexOf("C", curValue.length - "C".length) !== -1) {
       sensor = new Array();
       let r;
       sensor['label'] = label.trim();
@@ -160,7 +161,7 @@ function parseFanRPMLine(label, value) {
   if(label != undefined && value != undefined) {
     const curValue = value.trim().split('  ')[0];
     // does the current value look like a fan rpm line?
-    if(curValue.indexOf("RPM", curValue.length - "RPM".length) !== -1){
+    if(curValue.indexOf("RPM", curValue.length - "RPM".length) !== -1) {
       sensor = new Array();
       let r;
       sensor['label'] = label.trim();
@@ -176,7 +177,7 @@ function parseVoltageLine(label, value) {
   if(label != undefined && value != undefined) {
     const curValue = value.trim().split('  ')[0];
     // does the current value look like a voltage line?
-    if(curValue.indexOf("V", curValue.length - "V".length) !== -1){
+    if(curValue.indexOf("V", curValue.length - "V".length) !== -1) {
       sensor = new Array();
       let r;
       sensor['label'] = label.trim();
@@ -190,18 +191,19 @@ function parseVoltageLine(label, value) {
 
 function parseHddTempOutput(txt, sep) {
   let hddtempOutput = [];
+
   if (txt.indexOf((sep+sep), txt.length - (sep+sep).length) >= 0) {
     hddtempOutput = txt.split(sep+sep);
   } else {
     hddtempOutput = txt.split("\n");
   }
 
-  hddtempOutput = hddtempOutput.filter(function(e){ return e; });
+  hddtempOutput = hddtempOutput.filter(function(e) { return e; });
 
   const sensors = new Array();
   for (const line of hddtempOutput) {
     const sensor = new Array();
-    const fields = line.split(sep).filter(function(e){ return e; });
+    const fields = line.split(sep).filter(function(e) { return e; });
     sensor['label'] = _("Drive %s").format(fields[0].split('/').pop());
     sensor['temp'] = parseFloat(fields[2]);
     //push only if the temp is a Number
@@ -223,10 +225,9 @@ function filterVoltage(voltageInfo) {
   return true;
 }
 
-var Future = new Lang.Class({
-  Name: 'Future',
+var Future = class SensoryPerception_Future {
 
-  _init: function(argv, callback) {
+  constructor(argv, callback) {
     try {
       this._callback = callback;
       const [exit, pid, stdin, stdout, stderr] = GLib.spawn_async_with_pipes(
@@ -241,19 +242,19 @@ var Future = new Lang.Class({
       this._stderr = new Gio.UnixInputStream({ fd: stderr, close_fd: true });
       new Gio.UnixOutputStream({ fd: stdin, close_fd: true }).close(null);
 
-      this._childWatch = GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, Lang.bind(this, function(pid, status, requestObj) {
+      this._childWatch = GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, (pid, status, requestObj) => {
         GLib.source_remove(this._childWatch);
-      }));
+      });
 
       this._readStdout();
     } catch(e) {
       Logger.error('Future _init: ' + e.toString());
     }
-  },
+  }
 
-  _readStdout: function(){
-    this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, Lang.bind(this, function(stream, result) {
-      if (stream.fill_finish(result) == 0){
+  _readStdout() {
+    this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, (stream, result) => {
+      if (stream.fill_finish(result) == 0) {
         try {
           if (stream.peek_buffer() instanceof Uint8Array) {
             // Logger.debug('Using ByteArray.toString()')
@@ -272,14 +273,14 @@ var Future = new Lang.Class({
 
       stream.set_buffer_size(2 * stream.get_buffer_size());
       this._readStdout();
-    }));
+    });
   }
-});
+};
 
 // Poor man's async.js
 const Async = {
   // mapping will be done in parallel
-  map: function(arr, mapClb /* function(in, successClb)) */, resClb /* function(result) */) {
+  map(arr, mapClb /* function(in, successClb)) */, resClb /* function(result) */) {
     let counter = arr.length;
     const result = [];
     for (let i = 0; i < arr.length; ++i) {
@@ -294,7 +295,7 @@ const Async = {
 // routines for handling of udisks2
 var UDisks = {
   // creates a list of sensor objects from the list of proxies given
-  createListFromProxies: function(proxies) {
+  createListFromProxies(proxies) {
     return proxies.filter(function(proxy) {
       // 0K means no data available
       return proxy.ata.SmartTemperature > 0;
@@ -307,7 +308,7 @@ var UDisks = {
   },
 
   // calls callback with [{ drive: UDisksDriveProxy, ata: UDisksDriveAtaProxy }, ... ] for every drive that implements both interfaces
-  getDriveAtaProxies: function(callback) {
+  getDriveAtaProxies(callback) {
     Gio.DBusObjectManagerClient.new(Gio.DBus.system, 0, "org.freedesktop.UDisks2", "/org/freedesktop/UDisks2", null, null, function(src, res) {
       try {
         const objMgr = Gio.DBusObjectManagerClient.new_finish(res); //might throw

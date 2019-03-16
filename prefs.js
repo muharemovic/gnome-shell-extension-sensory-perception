@@ -1,10 +1,10 @@
+const ExtensionUtils = imports.misc.extensionUtils;
+const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
-const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
-const Lang = imports.lang;
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Utilities = Me.imports.utilities;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
@@ -44,30 +44,29 @@ function init() {
   Convenience.initTranslations();
 }
 
-const SensorsPrefsWidget = new GObject.Class({
-  Name: 'Sensors.Prefs.Widget',
-  GTypeName: 'SensorsPrefsWidget',
-  Extends: Gtk.Grid,
+var SensorsPrefsWidget = GObject.registerClass(
+class SensoryPerception_SensorsPrefsWidget extends Gtk.Grid {
+  _inti() {
+    super._init();
 
-  _init: function(params) {
-    this.parent(params);
     this.margin = this.row_spacing = this.column_spacing = 20;
 
     this._settings = Convenience.getSettings();
 
     this.attach(new Gtk.Label({ label: _("Poll sensors every (in seconds)") }), 0, 0, 1, 1);
+    this.attach(new Gtk.Label({ label: _("Poll sensors every (in seconds)") }), 0, 0, 1, 1);
     const updateTime = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 64, 1);
     updateTime.set_value(this._settings.get_int('update-time'));
     updateTime.set_digits(0);
     updateTime.set_hexpand(true);
-    updateTime.connect('value-changed', Lang.bind(this, this._onUpdateTimeChanged));
+    updateTime.connect('value-changed', this._onUpdateTimeChanged.bind(this));
     this.attach(updateTime, 1, 0, 1, 1);
 
     this.attach(new Gtk.Label({ label: _("Temperature unit") }), 0, 2, 1, 1);
     const centigradeRadio = new Gtk.RadioButton({ group: null, label: _("Centigrade"), valign: Gtk.Align.START });
     const fahrenheitRadio = new Gtk.RadioButton({ group: centigradeRadio, label: _("Fahrenheit"), valign: Gtk.Align.START });
-    fahrenheitRadio.connect('toggled', Lang.bind(this, this._onUnitChanged, 'Fahrenheit'));
-    centigradeRadio.connect('toggled', Lang.bind(this, this._onUnitChanged, 'Centigrade'));
+    fahrenheitRadio.connect('toggled', this._onUnitChanged.bind(this, 'Fahrenheit'));
+    centigradeRadio.connect('toggled', this._onUnitChanged.bind(this, 'Centigrade'));
     if (this._settings.get_string('unit')=='Centigrade')
       centigradeRadio.active = true;
     else
@@ -121,12 +120,12 @@ const SensorsPrefsWidget = new GObject.Class({
     // ComboBox to select which sensor to show in panel
     this._sensorSelector = new Gtk.ComboBox({ model: this._model });
     this._sensorSelector.set_active_iter(this._getActiveSensorIter());
-    this._sensorSelector.set_row_separator_func(Lang.bind(this, this._comboBoxSeparator));
+    this._sensorSelector.set_row_separator_func(this._comboBoxSeparator.bind(this));
 
     const renderer = new Gtk.CellRendererText();
     this._sensorSelector.pack_start(renderer, true);
     this._sensorSelector.add_attribute(renderer, 'text', modelColumn.label);
-    this._sensorSelector.connect('changed', Lang.bind(this, this._onSelectorChanged));
+    this._sensorSelector.connect('changed', this._onSelectorChanged.bind(this));
 
     this.attach(new Gtk.Label({ label: _("Sensor in panel") }), 0, ++counter, 1, 1);
     this.attach(this._sensorSelector, 1, counter , 1, 1);
@@ -138,27 +137,27 @@ const SensorsPrefsWidget = new GObject.Class({
       settings.set_boolean('display-label', checkButton.get_active());
     });
     this.attach(checkButton, 2, counter , 1, 1);
-  },
+  }
 
-  _comboBoxSeparator: function(model, iter, data) {
+  _comboBoxSeparator(model, iter, data) {
     return model.get_value(iter, modelColumn.separator);
-  },
+  }
 
-  _appendItem: function(label) {
+  _appendItem(label) {
     this._model.set(this._model.append(), [modelColumn.label], [label]);
-  },
+  }
 
-  _appendMultipleItems: function(sensorInfo) {
+  _appendMultipleItems(sensorInfo) {
     for (const sensor of sensorInfo) {
       this._model.set(this._model.append(), [modelColumn.label], [sensor['label']]);
     }
-  },
+  }
 
-  _appendSeparator: function() {
+  _appendSeparator() {
     this._model.set (this._model.append(), [modelColumn.separator], [true]);
-  },
+  }
 
-  _getSensorsLabels: function() {
+  _getSensorsLabels() {
     const sensorsCmd = Utilities.detectSensors();
     if(sensorsCmd) {
       const sensorsOutput = GLib.spawn_command_line_sync(sensorsCmd.join(' '));
@@ -179,9 +178,9 @@ const SensorsPrefsWidget = new GObject.Class({
         }
       }
     }
-  },
+  }
 
-  _getHddTempLabels: function() {
+  _getHddTempLabels() {
     const hddtempCmd = Utilities.detectHDDTemp();
     if(hddtempCmd){
       const hddtempOutput = GLib.spawn_command_line_sync(hddtempCmd.join(' '));
@@ -193,17 +192,17 @@ const SensorsPrefsWidget = new GObject.Class({
         this._appendMultipleItems(hddTempInfo);
       }
     }
-  },
+  }
 
-  _getUdisksLabels: function() {
+  _getUdisksLabels() {
     Utilities.UDisks.getDriveAtaProxies((function(proxies) {
       const list = Utilities.UDisks.createListFromProxies(proxies);
 
       this._appendMultipleItems(list);
     }).bind(this));
-  },
+  }
 
-  _getActiveSensorIter: function() {
+  _getActiveSensorIter() {
     /* Get the first iter in the list */
     let success, iter;
     [success, iter] = this._model.get_iter_first();
@@ -218,27 +217,26 @@ const SensorsPrefsWidget = new GObject.Class({
       success = this._model.iter_next(iter);
     }
     return iter;
-  },
+  }
 
-  _onUpdateTimeChanged: function (updateTime) {
+  _onUpdateTimeChanged(updateTime) {
     this._settings.set_int('update-time', updateTime.get_value());
-  },
+  }
 
-  _onUnitChanged: function (button, unit) {
+  _onUnitChanged(button, unit) {
     if (button.get_active()) {
       this._settings.set_string('unit', unit);
     }
-  },
+  }
 
-  _onSelectorChanged: function (comboBox) {
+  _onSelectorChanged(comboBox) {
     const [success, iter] = comboBox.get_active_iter();
     if (!success)
       return;
 
     const label = this._model.get_value(iter, modelColumn.label);
     this._settings.set_string('main-sensor', label);
-  },
-
+  }
 });
 
 function buildPrefsWidget() {

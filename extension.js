@@ -1,30 +1,29 @@
-const St = imports.gi.St;
-const Lang = imports.lang;
+const Clutter = imports.gi.Clutter;
+const ExtensionUtils = imports.misc.extensionUtils;
+const GObject = imports.gi.GObject;
+const Main = imports.ui.main;
+const Mainloop = imports.mainloop;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const Main = imports.ui.main;
-const Util = imports.misc.util;
-const Mainloop = imports.mainloop;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Convenience = Me.imports.convenience;
 const Shell = imports.gi.Shell;
+const SHELL_VERSION = imports.misc.config.PACKAGE_VERSION;
+const St = imports.gi.St;
+const Util = imports.misc.util;
+
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
 const Utilities = Me.imports.utilities;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
-const Clutter = imports.gi.Clutter;
-const SHELL_VERSION = imports.misc.config.PACKAGE_VERSION;
-
 const Logger = Me.imports.logger.Logger;
 const Metadata = Me.metadata;
 
 let settings;
 
-const SensorsItem = new Lang.Class({
-  Name: 'SensorsItem',
-  Extends: PopupMenu.PopupBaseMenuItem,
+const SensorsItem = class SensoryPerception_SensorsItem extends PopupMenu.PopupBaseMenuItem {
+  constructor(type, label, value) {
+    super();
 
-  _init: function(type, label, value) {
-    this.parent();
     this.connect('activate', function () {
       settings.set_string('main-sensor', label);
     });
@@ -38,31 +37,28 @@ const SensorsItem = new Lang.Class({
     }));
     this.actor.add(new St.Label({ text: label }));
     this.actor.add(new St.Label({ text: value }), { align: St.Align.END });
-  },
+  }
 
-  getPanelString: function() {
+  getPanelString() {
     if(settings.get_boolean('display-label'))
       return '%s: %s'.format(this._label, this._value);
     else
       return this._value;
-  },
+  }
 
-  setMainSensor: function() {
+  setMainSensor() {
     this.setOrnament(PopupMenu.Ornament.DOT);
-  },
+  }
 
-  getLabel: function() {
+  getLabel() {
     return this._label;
-  },
-});
+  }
+};
 
-const SensorsMenuButton = new Lang.Class({
-  Name: 'SensorsMenuButton',
-
-  Extends: PanelMenu.Button,
-
-  _init: function(){
-    this.parent(null, 'sensorMenu');
+var SensorsMenuButton = GObject.registerClass(
+class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
+  _init() {
+    super._init(null, 'sensorMenu');
 
     this._sensorsOutput = '';
     this._hddtempOutput = '';
@@ -74,57 +70,55 @@ const SensorsMenuButton = new Lang.Class({
 
     this.sensorsArgv = Utilities.detectSensors();
 
-    if (settings.get_boolean('display-hdd-temp')){
+    if (settings.get_boolean('display-hdd-temp')) {
       this.hddtempArgv = Utilities.detectHDDTemp();
     }
 
     this.udisksProxies = [];
-    Utilities.UDisks.getDriveAtaProxies(Lang.bind(this, function(proxies) {
+    Utilities.UDisks.getDriveAtaProxies((proxies) => {
       this.udisksProxies = proxies;
       this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
-    }));
+    });
 
-    this._settingsChanged = settings.connect('changed', Lang.bind(this, this._querySensors));
-    this.connect('destroy', Lang.bind(this, this._onDestroy));
-
-    // don't postprone the first call by update-time.
     this._querySensors();
+    this._settingsChanged = settings.connect('changed', this._querySensors.bind(this));
+    this.connect('destroy', this._onDestroy.bind(this));
 
-    this._eventLoop = Mainloop.timeout_add_seconds(settings.get_int('update-time'), Lang.bind(this, function (){
+    this._eventLoop = Mainloop.timeout_add_seconds(settings.get_int('update-time'), () => {
       this._querySensors();
       // readd to update queue
       return true;
-    }));
-  },
+    });
+  }
 
-  _onDestroy: function(){
+  _onDestroy() {
     Mainloop.source_remove(this._eventLoop);
-    this.menu.removeAll();
     settings.disconnect(this._settingsChanged);
-  },
+    this.menu.removeAll();
+  }
 
-  _querySensors: function(){
+  _querySensors() {
     if (typeof this.sensorsArgv !== 'undefined') {
       // Logger.debug('Querying sensors with ' + this.sensorsArgv);
-      this._sensorsFuture = new Utilities.Future(this.sensorsArgv, Lang.bind(this,function(stdout) {
+      this._sensorsFuture = new Utilities.Future(this.sensorsArgv, (stdout) => {
         this._sensorsOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
         this._sensorsFuture = undefined;
-      }));
+      });
     } else {
       Logger.error('SensorsMenuButton _querySensors: sensors program not found!');
     }
 
     if (typeof this.hddtempArgv !== 'undefined') {
-      this._hddtempFuture = new Utilities.Future(this.hddtempArgv, Lang.bind(this,function(stdout){
+      this._hddtempFuture = new Utilities.Future(this.hddtempArgv, (stdout) => {
         this._hddtempOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
         this._hddtempFuture = undefined;
-      }));
+      });
     }
-  },
+  }
 
-  _updateDisplay: function(sensorsOutput, hddtempOutput){
+  _updateDisplay(sensorsOutput, hddtempOutput) {
     const DisplayFanRPM = settings.get_boolean('display-fan-rpm');
     const DisplayVoltage = settings.get_boolean('display-voltage');
 
@@ -220,7 +214,7 @@ const SensorsMenuButton = new Lang.Class({
       // Label to switch columns and not totally break the layout.
       item.actor.add(new St.Label({ text: '' }));
       item.actor.add(new St.Label({ text: _("Sensors Settings") }));
-      item.connect('activate', Lang.bind(this, function () {
+      item.connect('activate', () => {
         const AppSys = Shell.AppSystem.get_default();
         const App = AppSys.lookup_app('gnome-shell-extension-prefs.desktop');
         const AppInfo = App.get_app_info();
@@ -229,7 +223,7 @@ const SensorsMenuButton = new Lang.Class({
           ['extension:///' + Metadata.uuid],
           global.create_app_launch_context(Timestamp, -1)
         );
-      }));
+      });
       Section.addMenuItem(item);
     } else {
       this.statusLabel.set_text(_("Error"));
@@ -246,13 +240,13 @@ const SensorsMenuButton = new Lang.Class({
     }
 
     this.menu.addMenuItem(Section);
-  },
+  } // _updateDisplay
 
-  _toFahrenheit: function(c){
+  _toFahrenheit(c) {
     return ((9/5)*c+32);
-  },
+  }
 
-  _formatTemp: function(value) {
+  _formatTemp(value) {
     if (settings.get_string('unit')=='Fahrenheit'){
       value = this._toFahrenheit(value);
     }

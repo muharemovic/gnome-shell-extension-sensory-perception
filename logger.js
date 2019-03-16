@@ -1,4 +1,6 @@
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const Me = ExtensionUtils.getCurrentExtension();
 
 var Logger = {
   error: function (msg) {
