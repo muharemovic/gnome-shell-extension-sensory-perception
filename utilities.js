@@ -225,6 +225,13 @@ function filterVoltage(voltageInfo) {
   return true;
 }
 
+function stringify(object) {
+  if (object instanceof Uint8Array) {
+    return ByteArray.toString(object);
+  }
+  return object.toString();
+}
+
 var Future = class SensoryPerception_Future {
 
   constructor(argv, callback) {
@@ -256,13 +263,7 @@ var Future = class SensoryPerception_Future {
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, (stream, result) => {
       if (stream.fill_finish(result) == 0) {
         try {
-          if (stream.peek_buffer() instanceof Uint8Array) {
-            // Logger.debug('Using ByteArray.toString()')
-            this._callback(ByteArray.toString(stream.peek_buffer()));
-          } else {
-            // Logger.debug('Using #toString()')
-            this._callback(stream.peek_buffer().toString());
-          }
+          stringify(stream.peek_buffer());
         } catch(e) {
           Logger.error('Future _readStdout: ' + e.toString());
         }
