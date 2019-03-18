@@ -32,7 +32,7 @@ const SensorsItem = class SensoryPerception_SensorsItem extends PopupMenu.PopupB
 
     this.actor.add(new St.Icon({
       style_class: 'system-status-icon',
-      icon_name: 'sensors-'+type+'-symbolic',
+      icon_name: 'sensors-' + type + '-symbolic',
       icon_size: 16
     }));
     this.actor.add(new St.Label({ text: label }));
@@ -99,7 +99,6 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
 
   _querySensors() {
     if (typeof this.sensorsArgv !== 'undefined') {
-      // Logger.debug('Querying sensors with ' + this.sensorsArgv);
       this._sensorsFuture = new Utilities.Future(this.sensorsArgv, (stdout) => {
         this._sensorsOutput = stdout;
         this._updateDisplay(this._sensorsOutput, this._hddtempOutput);
@@ -160,7 +159,7 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
           max = temp.temp;
 
         sensorsList.push(new SensorsItem('temperature', temp.label, this._formatTemp(temp.temp)));
-        // Logger.debug('Detected Shell version: ' + SHELL_VERSION);
+
         const IncludesCore = SHELL_VERSION < '3.26' ? temp.label.contains('Core') : temp.label.includes('Core');
         if (IncludesCore) {
           if (temp.high <= temp.temp) {
@@ -213,7 +212,7 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
       // HACK: span and expand parameters don't work as expected on Label, so add an invisible
       // Label to switch columns and not totally break the layout.
       item.actor.add(new St.Label({ text: '' }));
-      item.actor.add(new St.Label({ text: _("Sensors Settings") }));
+      item.actor.add(new St.Label({ text: _("⚙ Settings") }));
       item.connect('activate', () => {
         const AppSys = Shell.AppSystem.get_default();
         const App = AppSys.lookup_app('gnome-shell-extension-prefs.desktop');
@@ -252,7 +251,6 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
     }
     let format = '%.1f';
     if (!settings.get_boolean('display-decimal-value')){
-      //ret = Math.round(value);
       format = '%d';
     }
     if (settings.get_boolean('display-degree-sign')) {
@@ -267,7 +265,7 @@ let sensorsMenu;
 function init(extensionMeta) {
   Convenience.initTranslations();
   Convenience.initIcons();
-  settings = Convenience.getSettings();
+  settings = ExtensionUtils.getSettings();
 }
 
 function enable() {
