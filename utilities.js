@@ -46,10 +46,8 @@ const CmdHelper = {
 };
 
 function detectSensors() {
-  // Logger.debug('Attempting to find sensors in path...');
   const sensorsProg = GLib.find_program_in_path('sensors');
   if (typeof sensorsProg !== 'undefined') {
-    // Logger.debug('Found sensors at ' + sensorsProg);
   } else {
     Logger.error('Program sensors not found!');
   }
@@ -263,7 +261,7 @@ var Future = class SensoryPerception_Future {
     this._dataStdout.fill_async(-1, GLib.PRIORITY_DEFAULT, null, (stream, result) => {
       if (stream.fill_finish(result) == 0) {
         try {
-          stringify(stream.peek_buffer());
+          this._callback(stringify(stream.peek_buffer()));
         } catch(e) {
           Logger.error('Future _readStdout: ' + e.toString());
         }
