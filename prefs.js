@@ -8,7 +8,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 
 const Me = ExtensionUtils.getCurrentExtension();
 
-const Convenience = Me.imports.convenience;
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
 const Logger = Me.imports.logger.Logger;
@@ -45,7 +44,6 @@ const MODEL_COLUMN = {
 };
 
 function init() {
-  // Convenience.initTranslations();
   ExtensionUtils.initTranslations();
 }
 
@@ -251,9 +249,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
   }
 
   _onUnitChanged(button, unit) {
-    // Logger.debug('button is a ' + typeof button);
     if (button.get_active()) {
-      // Logger.debug('Setting active temp unit to ' + unit);
       this._settings.set_string('unit', unit);
     }
   }

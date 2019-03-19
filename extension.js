@@ -18,6 +18,9 @@ const _ = Gettext.gettext;
 const Logger = Me.imports.logger.Logger;
 const Metadata = Me.metadata;
 
+const APPLICATION_ICON_SIZE = 16;
+const ELLIPSIS = '\u2026';
+
 let settings;
 
 const SensorsItem = class SensoryPerception_SensorsItem extends PopupMenu.PopupBaseMenuItem {
@@ -33,7 +36,7 @@ const SensorsItem = class SensoryPerception_SensorsItem extends PopupMenu.PopupB
     this.actor.add(new St.Icon({
       style_class: 'system-status-icon',
       icon_name: 'sensors-' + type + '-symbolic',
-      icon_size: 16
+      icon_size: APPLICATION_ICON_SIZE
     }));
     this.actor.add(new St.Label({ text: label }));
     this.actor.add(new St.Label({ text: value }), { align: St.Align.END });
@@ -63,7 +66,11 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
     this._sensorsOutput = '';
     this._hddtempOutput = '';
 
-    this.statusLabel = new St.Label({ text: '\u2026', y_expand: true, y_align: Clutter.ActorAlign.CENTER });
+    this.statusLabel = new St.Label({
+      text: ELLIPSIS,
+      y_expand: true,
+      y_align: Clutter.ActorAlign.CENTER
+    });
 
     this.menu.removeAll();
     this.actor.add_actor(this.statusLabel);
@@ -263,7 +270,7 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
 let sensorsMenu;
 
 function init(extensionMeta) {
-  Convenience.initTranslations();
+  ExtensionUtils.initTranslations();
   Convenience.initIcons();
   settings = ExtensionUtils.getSettings();
 }
