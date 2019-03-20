@@ -346,3 +346,7 @@ var UDisks = {
     });
   }
 };
+
+function giconFor(name) {
+  return Gio.icon_new_for_string(Me.dir.get_child('icons').get_path() + '/' + name + '.svg');
+}
