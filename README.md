@@ -5,7 +5,7 @@ Forked from https://github.com/xtranophilist/gnome-shell-extension-sensors
 
 ## Compatibility
 
-As of [v8](/releases/tag/v8) GNOME Shell 3.30 and 3.32 are tested as working.
+As of [v8](/releases/tag/v8) GNOME Shell 3.32 is tested as working.
 
 GNOME Shell < 3.32 require [v7](/releases/tag/v7).
 

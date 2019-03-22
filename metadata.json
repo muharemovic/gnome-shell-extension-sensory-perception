@@ -4,7 +4,6 @@
   "name": "Sensory Perception",
   "settings-schema": "org.gnome.shell.extensions.sensory-perception",
   "shell-version": [
-    "3.30",
     "3.32"
   ],
   "url": "https://github.com/HarlemSquirrel/gnome-shell-extension-sensory-perception",
