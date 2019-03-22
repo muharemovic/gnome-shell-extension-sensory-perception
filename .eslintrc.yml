@@ -2,6 +2,8 @@ extends: eslint-config-gjs
 
 parserOptions:
   ecmaVersion: 6
+  ecmaFeatures:
+    impliedStrict: true
 
 rules:
   camelcase:
