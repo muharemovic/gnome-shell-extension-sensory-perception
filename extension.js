@@ -33,7 +33,8 @@ const SensorsItem = class SensoryPerception_SensorsItem extends PopupMenu.PopupB
 
     this.actor.add(new St.Icon({
       style_class: 'system-status-icon',
-      gicon: Utilities.giconFor('sensors-' + type + '-symbolic')
+      gicon: Utilities.giconFor('sensors-' + type + '-symbolic'),
+      icon_size: 24
     }));
     this.actor.add(new St.Label({ text: label }));
     this.actor.add(new St.Label({ text: value }), { align: St.Align.END });
