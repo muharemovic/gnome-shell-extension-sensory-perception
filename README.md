@@ -40,6 +40,8 @@ gnome-shell-extension-tool --enable sensory-perception@HarlemSquirrel.github.io
 
 You may want to set the labels of your sensors to something like 'CPU' instead of 'temp1'. Every motherboard is different so you will need to set these labels manually. I created [lm-sensors-chip-labels](https://github.com/HarlemSquirrel/lm-sensors-chip-labels) where I am adding the files I need for my machines. Feel free to open a PR and contribute!
 
+The [sensors.conf manual](https://linux.die.net/man/5/sensors.conf) describes the full array of customizations.
+
 ## Troubleshooting
 
 ### Reloading
