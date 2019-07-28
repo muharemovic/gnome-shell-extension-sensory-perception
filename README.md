@@ -3,6 +3,22 @@
 
 Forked from https://github.com/xtranophilist/gnome-shell-extension-sensors
 
+## Requirements
+
+This GNOME shell extension uses [`lm-sensors`](https://github.com/lm-sensors/lm-sensors) which must be installed.
+
+```sh
+# ArchLinux
+sudo pacman -S lm_sensors
+
+# Fedora
+sudo dnf install lm-sensors
+
+# Ubuntu
+sudo apt install lm-sensors
+```
+
+
 ## Compatibility
 
 As of [v8](/releases/tag/v8) GNOME Shell 3.32 is tested as working.
