@@ -12,7 +12,7 @@ This GNOME shell extension uses [`lm-sensors`](https://github.com/lm-sensors/lm-
 sudo pacman -S lm_sensors
 
 # Fedora
-sudo dnf install lm-sensors
+sudo dnf install lm_sensors
 
 # Ubuntu
 sudo apt install lm-sensors
