@@ -21,37 +21,41 @@ const ELLIPSIS = '\u2026';
 
 let settings;
 
-const SensorsItem = class SensoryPerception_SensorsItem extends PopupMenu.PopupBaseMenuItem {
+const SensorsItem = class SensoryPerception_SensorsItem {
   constructor(type, label, value) {
-    super();
+    this._menuItem = new PopupMenu.PopupBaseMenuItem();
 
-    this.connect('activate', function () {
+    this._menuItem.connect('activate', function () {
       settings.set_string('main-sensor', label);
     });
-    this._label = label;
-    this._value = value;
+    this._menuItem._label = label;
+    this._menuItem._value = value;
 
-    this.actor.add(new St.Icon({
+    this._menuItem.add(new St.Icon({
       style_class: 'sensory-perception-sensor-icon',
       gicon: Utilities.giconFor('sensors-' + type + '-symbolic')
     }));
-    this.actor.add(new St.Label({ text: label }));
-    this.actor.add(new St.Label({ text: value }), { align: St.Align.END });
+    this._menuItem.add(new St.Label({ text: label }));
+    this._menuItem.add(new St.Label({ text: value }), { align: St.Align.END });
   }
 
   getPanelString() {
     if(settings.get_boolean('display-label'))
-      return '%s: %s'.format(this._label, this._value);
+      return '%s: %s'.format(this._menuItem._label, this._menuItem._value);
     else
-      return this._value;
+      return this._menuItem._value;
   }
 
   setMainSensor() {
-    this.setOrnament(PopupMenu.Ornament.DOT);
+    this._menuItem.setOrnament(PopupMenu.Ornament.DOT);
   }
 
-  getLabel() {
-    return this._label;
+  get label() {
+    return this._menuItem._label;
+  }
+
+  get menuItem() {
+    return this._menuItem;
   }
 };
 
@@ -78,7 +82,7 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
 
     box.add_child(this.extensionIcon);
     box.add_child(this.statusLabel);
-    this.actor.add_child(box);
+    this.add_child(box);
 
     this.sensorsArgv = Utilities.detectSensors();
 
@@ -206,15 +210,18 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
       this.statusLabel.set_text(_("N/A")); // Just in case
 
       for (const item of sensorsList) {
-        if(item instanceof SensorsItem) {
-          if (settings.get_string('main-sensor') == item.getLabel()) {
-
-            // Configure as main sensor and set panel string
-            item.setMainSensor();
-            this.statusLabel.set_text(item.getPanelString());
-          }
+        if (item.label && settings.get_string('main-sensor') == item.label) {
+          // Configure as main sensor and set panel string
+          item.setMainSensor();
+          this.statusLabel.set_text(item.getPanelString());
         }
-        Section.addMenuItem(item);
+
+        if (item.menuItem) {
+          // Add the menu item from SensorsItem objects.
+          Section.addMenuItem(item.menuItem);
+        } else {
+          Section.addMenuItem(item);
+        }
       }
 
       // separator
@@ -223,8 +230,8 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
       const item = new PopupMenu.PopupBaseMenuItem();
       // HACK: span and expand parameters don't work as expected on Label, so add an invisible
       // Label to switch columns and not totally break the layout.
-      item.actor.add(new St.Label({ text: '' }));
-      item.actor.add(new St.Label({ text: _("⚙ Settings") }));
+      item.add(new St.Label({ text: '' }));
+      item.add(new St.Label({ text: _("⚙ Settings") }));
       item.connect('activate', () => {
         const AppSys = Shell.AppSystem.get_default();
         const App = AppSys.lookup_app('gnome-shell-extension-prefs.desktop');
