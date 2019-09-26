@@ -21,6 +21,7 @@ sudo apt install lm-sensors
 
 ## Compatibility
 
+As of [v11](/releases/tag/v11) GNOME Shell 3.34 is tested as working.
 As of [v8](/releases/tag/v8) GNOME Shell 3.32 is tested as working.
 
 GNOME Shell < 3.32 require [v7](/releases/tag/v7).
