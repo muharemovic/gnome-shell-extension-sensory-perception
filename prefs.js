@@ -50,26 +50,36 @@ function init() {
 const SensorsPrefsWidget = GObject.registerClass(
 class SensorsPrefsWidget extends Gtk.Grid {
     _init(params) {
+        /************************************************************
+        * Gtk.Grid
+        * https://developer.gnome.org/gtk3/stable/GtkGrid.html
+        *
+        * Gtk.Grid.attach(child, left, top, width, height)
+        */
         super._init(params);
 
+        this.column_homogeneous = false;
+        this.row_homogeneous = false;
         this.margin = 20;
         this.row_spacing = 20;
         this.column_spacing = 20;
 
         this._settings = ExtensionUtils.getSettings();
 
-        // Gtk.Grid.attach(child, left, top, width, height)
-        // https://devdocs.baznga.org/gtk30~3.22.12/gtk.grid#method-attach
-        this.attach(new Gtk.Label({ label: _("Poll sensors every (in seconds)") }), 0, 0, 1, 1);
+        /***********************************************************
+         * Gtk.Label
+         * https://developer.gnome.org/gtk3/stable/GtkLabel.html
+         */
+        this.attach(new Gtk.Label({ label: _("Poll sensors every (in seconds)") , xalign: 1 }), 0, 0, 2, 1);
 
         const updateTime = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 64, 1);
         updateTime.set_value(this._settings.get_int('update-time'));
         updateTime.set_digits(0);
         updateTime.set_hexpand(true);
         updateTime.connect('value-changed', this._onUpdateTimeChanged.bind(this));
-        this.attach(updateTime, 1, 0, 1, 1);
+        this.attach(updateTime, 2, 0, 4, 1);
 
-        this.attach(new Gtk.Label({ label: _("Temperature unit") }), 0, 2, 1, 1);
+        this.attach(new Gtk.Label({ label: _("Temperature unit"), xalign: 1 }), 0, 2, 2, 1);
 
         const centigradeRadio = new Gtk.RadioButton({
             group: null,
@@ -92,8 +102,8 @@ class SensorsPrefsWidget extends Gtk.Grid {
             fahrenheitRadio.active = true;
         }
 
-        this.attach(centigradeRadio, 1, 2, 1, 1);
-        this.attach(fahrenheitRadio, 2, 2, 1, 1);
+        this.attach(centigradeRadio, 2, 2, 2, 1);
+        this.attach(fahrenheitRadio, 4, 2, 2, 1);
 
         const settings = this._settings;
 
@@ -101,8 +111,9 @@ class SensorsPrefsWidget extends Gtk.Grid {
 
         for (const boolSetting in BOOL_SETTINGS){
             const setting = BOOL_SETTINGS[boolSetting];
-            const settingLabel = new Gtk.Label({ label: setting.label });
+            const settingLabel = new Gtk.Label({ label: setting.label, xalign: 1 });
             const settingSwitch = new Gtk.Switch({ active: this._settings.get_boolean(setting.name) });
+            const settingSwitchBox = new Gtk.Box();
             // const settings = this._settings;
 
             settingSwitch.connect('notify::active', function(button) {
@@ -114,9 +125,11 @@ class SensorsPrefsWidget extends Gtk.Grid {
                 settingSwitch.set_tooltip_text(setting.help);
             }
 
-            this.attach(settingLabel, 0, counter, 1, 1);
-            this.attach(settingSwitch, 1, counter++, 1, 1);
+            // Placing the switch inside a box avoids stretching it's width.
+            settingSwitchBox.add(settingSwitch);
 
+            this.attach(settingLabel, 0, counter, 2, 1);
+            this.attach(settingSwitchBox, 2, counter++, 1, 1);
         }
 
         // List of items of the ComboBox
@@ -151,16 +164,16 @@ class SensorsPrefsWidget extends Gtk.Grid {
         this._sensorSelector.add_attribute(renderer, 'text', MODEL_COLUMN.label);
         this._sensorSelector.connect('changed', this._onSelectorChanged.bind(this));
 
-        this.attach(new Gtk.Label({ label: _("Sensor in panel") }), 0, ++counter, 1, 1);
-        this.attach(this._sensorSelector, 1, counter , 1, 1);
+        this.attach(new Gtk.Label({ label: _("Sensor in panel"), xalign: 1 }), 0, ++counter, 2, 1);
+        this.attach(this._sensorSelector, 2, counter , 2, 1);
 
         // const settings = this._settings;
-        const checkButton = new Gtk.CheckButton({ label: _("Display sensor label") });
+        const checkButton = new Gtk.CheckButton({ label: _("Display sensor label"), xalign: 1 });
         checkButton.set_active(settings.get_boolean('display-label'));
         checkButton.connect('toggled', function () {
             settings.set_boolean('display-label', checkButton.get_active());
         });
-        this.attach(checkButton, 2, counter , 1, 1);
+        this.attach(checkButton, 4, counter, 2, 1);
     }
 
     _comboBoxSeparator(model, iter, data) {

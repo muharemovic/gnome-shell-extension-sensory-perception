@@ -1,6 +1,8 @@
 /* eslint indent: "off", camelcase: "off" */
 const Clutter = imports.gi.Clutter;
 const ExtensionUtils = imports.misc.extensionUtils;
+const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 const GObject = imports.gi.GObject;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
@@ -239,16 +241,7 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
             // Label to switch columns and not totally break the layout.
             item.add(new St.Label({ text: '' }));
             item.add(new St.Label({ text: _("⚙ Settings") }));
-            item.connect('activate', () => {
-                const AppSys = Shell.AppSystem.get_default();
-                const App = AppSys.lookup_app('gnome-shell-extension-prefs.desktop');
-                const AppInfo = App.get_app_info();
-                const Timestamp = global.display.get_current_time_roundtrip();
-                AppInfo.launch_uris(
-                    ['extension:///' + Metadata.uuid],
-                    global.create_app_launch_context(Timestamp, -1)
-                );
-            });
+            item.connect('activate', this._openSettings);
             Section.addMenuItem(item);
         } else {
             this.statusLabel.set_text(_("Error"));
@@ -266,6 +259,19 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
 
         this.menu.addMenuItem(Section);
     } // _updateDisplay
+
+    _openSettings() {
+        Gio.DBus.session.call(
+            'org.gnome.Shell.Extensions',
+            '/org/gnome/Shell/Extensions',
+            'org.gnome.Shell.Extensions',
+            'OpenExtensionPrefs',
+            new GLib.Variant('(ssa{sv})', [Metadata.uuid, '', {}]),
+            null,
+            Gio.DBusCallFlags.NONE,
+            -1,
+            null);
+	}
 
     _toFahrenheit(c) {
         return ((9/5)*c+32);
