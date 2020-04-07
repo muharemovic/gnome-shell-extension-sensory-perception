@@ -211,7 +211,7 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
                 sensorsList.push(new PopupMenu.PopupSeparatorMenuItem());
             }
             for (const voltage of voltageInfo){
-                sensorsList.push(new SensorsItem('voltage', voltage.label, _("%s%.2fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
+                sensorsList.push(new SensorsItem('voltage', voltage.label, _("%s%.3fV").format(((voltage['volt'] >= 0) ? '+' : '-'), voltage['volt'])));
             }
 
             this.statusLabel.set_text(_("N/A")); // Just in case
