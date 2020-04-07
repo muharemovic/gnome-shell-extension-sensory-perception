@@ -187,8 +187,8 @@ function parseVoltageLine(label, value) {
                 sensor['volt'] = sensor['volt'] / 1000.0;
             }
     }
-  }
-  return sensor;
+    }
+    return sensor;
 }
 
 function parseHddTempOutput(txt, sep) {
