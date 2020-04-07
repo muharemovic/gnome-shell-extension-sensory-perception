@@ -172,20 +172,20 @@ function parseFanRPMLine(label, value) {
 }
 
 function parseVoltageLine(label, value) {
-  let sensor = undefined;
-  if(label != undefined && value != undefined) {
-    const regex = /\s+([\d\.]+)\s+(m?V)\s+\(min\s+\=\s+\+([\d\.]+)\sV,\smax\s\=\s+\+([\d\.]+)/;
-    const matchValue = value.match(regex);
-    // does the current value look like a voltage line?
-    if(matchValue) {
-      sensor = new Array();
-      sensor['label'] = label;
-      sensor['volt'] = parseFloat(matchValue[1]);
-      sensor['min'] = parseFloat(matchValue[3]);
-      sensor['max'] = parseFloat(matchValue[4]);
-      if(matchValue[2] == "mV") {
-      	sensor['volt'] = sensor['volt'] / 1000.0;
-      }
+    let sensor = undefined;
+    if(label != undefined && value != undefined) {
+        const regex = /\s+([\d\.]+)\s+(m?V)\s+\(min\s+\=\s+\+([\d\.]+)\sV,\smax\s\=\s+\+([\d\.]+)/;
+        const matchValue = value.match(regex);
+        // does the current value look like a voltage line?
+        if(matchValue) {
+            sensor = new Array();
+            sensor['label'] = label;
+            sensor['volt'] = parseFloat(matchValue[1]);
+            sensor['min'] = parseFloat(matchValue[3]);
+            sensor['max'] = parseFloat(matchValue[4]);
+            if(matchValue[2] == "mV") {
+                sensor['volt'] = sensor['volt'] / 1000.0;
+            }
     }
   }
   return sensor;
