@@ -186,7 +186,7 @@ function parseVoltageLine(label, value) {
             if(matchValue[2] == "mV") {
                 sensor['volt'] = sensor['volt'] / 1000.0;
             }
-    }
+        }
     }
     return sensor;
 }
