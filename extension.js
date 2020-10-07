@@ -41,7 +41,7 @@ const SensorsItem = class SensoryPerception_SensorsItem {
         this._menuItem.add_child(this._icon);
         this._label = new St.Label({ text: label });
         this._menuItem.add_child(this._label);
-        this._value = new St.Label({text: value, x_align: St.Align.END});
+        this._value = new St.Label({ text: value, x_align: St.Align.END });
         this._menuItem.add_child(this._value);
     }
 
