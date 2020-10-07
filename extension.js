@@ -34,12 +34,15 @@ const SensorsItem = class SensoryPerception_SensorsItem {
         this._menuItem._label = label;
         this._menuItem._value = value;
 
-        this._menuItem.add(new St.Icon({
+        this._icon = new St.Icon({
             style_class: 'sensory-perception-sensor-icon',
             gicon: Utilities.giconFor('sensors-' + type + '-symbolic')
-        }));
-        this._menuItem.add(new St.Label({ text: label }));
-        this._menuItem.add(new St.Label({ text: value }), { align: St.Align.END });
+        });
+        this._menuItem.add_child(this._icon);
+        this._label = new St.Label({ text: label });
+        this._menuItem.add_child(this._label);
+        this._value = new St.Label({text: value, x_align: St.Align.END});
+        this._menuItem.add_child(this._value);
     }
 
     getPanelString() {
