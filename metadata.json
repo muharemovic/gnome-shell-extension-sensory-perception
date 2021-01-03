@@ -1,5 +1,5 @@
 {
-  "description": "Shows CPU temperature, disk temperature, video card temperature, voltage and fan RPM (forked from xtranophilist/gnome-shell-extension-sensors)",
+  "description": "Requires lm-sensors (or lm_sensors). Shows CPU temperature, disk temperature, video card temperature, voltage and fan RPM.",
   "gettext-domain": "sensory-perception",
   "name": "Sensory Perception",
   "settings-schema": "org.gnome.shell.extensions.sensory-perception",
