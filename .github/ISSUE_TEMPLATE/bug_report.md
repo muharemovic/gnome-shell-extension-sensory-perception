@@ -26,6 +26,7 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. Ubuntu]
  - Version [e.g. 18.04]
+ - Version of lm-sensors (or lm_sensors)
 
 **Additional context**
 Add any other context about the problem here.
