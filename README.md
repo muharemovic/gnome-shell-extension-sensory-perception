@@ -21,6 +21,7 @@ sudo apt install lm-sensors
 
 ## Compatibility
 
+As of [v14](/releases/tag/v14) GNOME Shell 40 is tested as working.
 As of [v12](/releases/tag/v12) GNOME Shell 3.36 is tested as working.
 As of [v11](/releases/tag/v11) GNOME Shell 3.34 is tested as working.
 As of [v8](/releases/tag/v8) GNOME Shell 3.32 is tested as working.
@@ -75,6 +76,12 @@ One of the best ways to troubleshoot is to watch the logs with `journalctl` and 
 
 
 ### Launch preferences from a terminal
+
+GNOME 40
+
+    gnome-extensions prefs sensory-perception@HarlemSquirrel.github.io
+
+Earlier versions
 
     gnome-shell-extension-prefs sensory-perception@HarlemSquirrel.github.io
 

@@ -52,7 +52,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
     _init(params) {
         /************************************************************
         * Gtk.Grid
-        * https://developer.gnome.org/gtk3/stable/GtkGrid.html
+        * https://developer.gnome.org/gtk4/4.0/GtkGrid.html
         *
         * Gtk.Grid.attach(child, left, top, width, height)
         */
@@ -72,22 +72,27 @@ class SensorsPrefsWidget extends Gtk.Grid {
          */
         this.attach(new Gtk.Label({ label: _("Poll sensors every (in seconds)") , xalign: 1 }), 0, 0, 2, 1);
 
+        /***********************************************************
+         * GtkScale
+         * https://developer.gnome.org/gtk4/4.0/GtkScale.html
+         */
         const updateTime = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 64, 1);
         updateTime.set_value(this._settings.get_int('update-time'));
         updateTime.set_digits(0);
+        updateTime.set_draw_value(true);
         updateTime.set_hexpand(true);
         updateTime.connect('value-changed', this._onUpdateTimeChanged.bind(this));
         this.attach(updateTime, 2, 0, 4, 1);
 
         this.attach(new Gtk.Label({ label: _("Temperature unit"), xalign: 1 }), 0, 2, 2, 1);
 
-        const centigradeRadio = new Gtk.RadioButton({
+        const centigradeRadio = new Gtk.CheckButton({
             group: null,
             label: _("Centigrade"),
             valign: Gtk.Align.START
         });
 
-        const fahrenheitRadio = new Gtk.RadioButton({
+        const fahrenheitRadio = new Gtk.CheckButton({
             group: centigradeRadio,
             label: _("Fahrenheit"),
             valign: Gtk.Align.START
@@ -126,7 +131,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
             }
 
             // Placing the switch inside a box avoids stretching it's width.
-            settingSwitchBox.add(settingSwitch);
+            settingSwitchBox.append(settingSwitch);
 
             this.attach(settingLabel, 0, counter, 2, 1);
             this.attach(settingSwitchBox, 2, counter++, 1, 1);
@@ -168,7 +173,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
         this.attach(this._sensorSelector, 2, counter , 2, 1);
 
         // const settings = this._settings;
-        const checkButton = new Gtk.CheckButton({ label: _("Display sensor label"), xalign: 1 });
+        const checkButton = new Gtk.CheckButton({ label: _("Display sensor label") });
         checkButton.set_active(settings.get_boolean('display-label'));
         checkButton.connect('toggled', function () {
             settings.set_boolean('display-label', checkButton.get_active());
@@ -279,7 +284,6 @@ class SensorsPrefsWidget extends Gtk.Grid {
 
 function buildPrefsWidget() {
     const widget = new SensorsPrefsWidget();
-    widget.show_all();
 
     return widget;
 }
