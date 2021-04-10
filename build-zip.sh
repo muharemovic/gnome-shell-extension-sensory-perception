@@ -1,15 +1,10 @@
 #!/bin/sh
 
 # Build the zip file with the current version read from metadata.json
-# using underscore
+# using grep
 
-command -v underscore >/dev/null 2>&1 || {
-  echo >&2 "Please install underscore with \"npm install\".  Aborting."
-  exit 1
-}
-
-VERSION="$(underscore extract --in metadata.json --outfmt text 'version')"
-UUID="$(underscore extract --in metadata.json --outfmt text 'uuid')"
+VERSION="$(grep -oP '(?<="version": ")\d+' metadata.json)"
+UUID="$(grep -oP '(?<="uuid": ")[^"]+' metadata.json)"
 FILENAME="$UUID-v$VERSION.zip"
 
 printf "Zipping into $FILENAME...\n"
