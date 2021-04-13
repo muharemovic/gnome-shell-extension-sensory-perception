@@ -112,7 +112,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
 
         const settings = this._settings;
 
-        let counter = 3;
+        let topOffset = 3;
 
         for (const boolSetting in BOOL_SETTINGS){
             const setting = BOOL_SETTINGS[boolSetting];
@@ -133,8 +133,8 @@ class SensorsPrefsWidget extends Gtk.Grid {
             // Placing the switch inside a box avoids stretching it's width.
             settingSwitchBox.append(settingSwitch);
 
-            this.attach(settingLabel, 0, counter, 2, 1);
-            this.attach(settingSwitchBox, 2, counter++, 1, 1);
+            this.attach(settingLabel, 0, topOffset, 2, 1);
+            this.attach(settingSwitchBox, 2, topOffset++, 1, 1);
         }
 
         // List of items of the ComboBox
@@ -169,8 +169,8 @@ class SensorsPrefsWidget extends Gtk.Grid {
         this._sensorSelector.add_attribute(renderer, 'text', MODEL_COLUMN.label);
         this._sensorSelector.connect('changed', this._onSelectorChanged.bind(this));
 
-        this.attach(new Gtk.Label({ label: _("Sensor in panel"), xalign: 1 }), 0, ++counter, 2, 1);
-        this.attach(this._sensorSelector, 2, counter , 2, 1);
+        this.attach(new Gtk.Label({ label: _("Sensor in panel"), xalign: 1 }), 0, ++topOffset, 2, 1);
+        this.attach(this._sensorSelector, 2, topOffset , 2, 1);
 
         // const settings = this._settings;
         const checkButton = new Gtk.CheckButton({ label: _("Display sensor label") });
@@ -178,7 +178,10 @@ class SensorsPrefsWidget extends Gtk.Grid {
         checkButton.connect('toggled', function () {
             settings.set_boolean('display-label', checkButton.get_active());
         });
-        this.attach(checkButton, 4, counter, 2, 1);
+        this.attach(checkButton, 4, topOffset, 2, 1);
+
+        this.attach(new Gtk.Label({ label: 'Sensory Perception version: ' + Me.metadata['version'], xalign: 0 }), 2, ++topOffset, 4, 1);
+        this.attach(new Gtk.Label({ label: this._getSensorsVersion(), wrap: true, xalign: 0 }), 2, ++topOffset, 4, 1);
     }
 
     _comboBoxSeparator(model, iter, data) {
@@ -219,6 +222,13 @@ class SensorsPrefsWidget extends Gtk.Grid {
                     this._appendMultipleItems(voltageInfo);
                 }
             }
+        }
+    }
+
+    _getSensorsVersion() {
+        const sensorsCmd = Utilities.detectSensors();
+        if(sensorsCmd) {
+            return Utilities.stringify(GLib.spawn_command_line_sync(sensorsCmd.join(' ') + ' --version')[1]);
         }
     }
 
