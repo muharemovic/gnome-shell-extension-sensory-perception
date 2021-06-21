@@ -182,6 +182,10 @@ class SensorsPrefsWidget extends Gtk.Grid {
 
         this.attach(new Gtk.Label({ label: 'Sensory Perception version: ' + Me.metadata['version'], xalign: 0 }), 2, ++topOffset, 4, 1);
         this.attach(new Gtk.Label({ label: this._getSensorsVersion(), wrap: true, xalign: 0 }), 2, ++topOffset, 4, 1);
+
+        const sensorsCmd = Utilities.detectSensors().join(' ');
+        this.attach(new Gtk.Label({ label: _("Sensor command path"), xalign: 1 }), 0, ++topOffset, 2, 1);
+        this.attach(new Gtk.Label({ label: sensorsCmd, xalign: 1 }), 1, topOffset, 2, 1);
     }
 
     _comboBoxSeparator(model, iter, data) {
