@@ -48,11 +48,13 @@ const CmdHelper = {
 
 function detectSensors() {
     const sensorsProg = GLib.find_program_in_path('sensors');
-    if (typeof sensorsProg !== 'undefined') {
-    } else {
+
+    if ((typeof sensorsProg === 'undefined') || (sensorsProg === null)) {
         Logger.error('Program sensors not found!');
+        return ['Program sensors not found!'];
     }
-    return typeof sensorsProg !== 'undefined' ? [sensorsProg] : undefined;
+
+    return [sensorsProg];
 }
 
 function detectHDDTemp() {
