@@ -40,6 +40,18 @@ GNOME Shell < 3.32 require [v7](/releases/tag/v7).
 
 This is useful for developing and/or debugging.
 
+**As of GNOME 40, the extension system seems to reset the extension on it's own so symlinking can cause local repo to be clobbered.**
+
+#### Build and install on GNOME 40+
+
+```sh
+./build-zip.sh | grep -o *.zip | xargs gnome-extensions install --force
+```
+
+Then reload the shell (only works on XOrg) or reboot.
+
+#### Symlinking (not recommended on GNOME 40+)
+
 ```sh
 # Clone the repository
 git clone https://github.com/HarlemSquirrel/gnome-shell-extension-sensory-perception.git
