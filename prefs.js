@@ -180,12 +180,16 @@ class SensorsPrefsWidget extends Gtk.Grid {
         });
         this.attach(checkButton, 4, topOffset, 2, 1);
 
-        this.attach(new Gtk.Label({ label: 'Sensory Perception version: ' + Me.metadata['version'], xalign: 0 }), 2, ++topOffset, 4, 1);
+        this.attach(new Gtk.Label({ label: 'Sensory Perception version: ' + Me.metadata['version'], xalign: 2 }), 0, ++topOffset, 4, 1);
 
-        const sensorsCmd = Utilities.detectSensors().join(' ');
+        const sensorsCmd = Utilities.detectSensors() || 'Program sensors not found!';
         this.attach(new Gtk.Label({ label: _("lm-sensors"), xalign: 1 }), 0, ++topOffset, 2, 1);
-        this.attach(new Gtk.Label({ label: sensorsCmd, xalign: 1 }), 1, topOffset, 2, 1);
-        this.attach(new Gtk.Label({ label: this._getSensorsVersion(), wrap: true, xalign: 0 }), 2, ++topOffset, 4, 1);
+        this.attach(new Gtk.Label({ label: sensorsCmd, xalign: 0 }), 2, topOffset, 2, 1);
+
+        const sensorsVersion = this._getSensorsVersion();
+        if (sensorsVersion) {
+            this.attach(new Gtk.Label({ label: sensorsVersion, wrap: true, xalign: 0 }), 2, ++topOffset, 2, 1);
+        }
     }
 
     _comboBoxSeparator(model, iter, data) {
@@ -209,22 +213,28 @@ class SensorsPrefsWidget extends Gtk.Grid {
     _getSensorsLabels() {
         const sensorsCmd = Utilities.detectSensors();
         if(sensorsCmd) {
-            const sensorsOutput = GLib.spawn_command_line_sync(sensorsCmd.join(' '));
-            if(sensorsOutput[0]) {
-                const output = Utilities.stringify(sensorsOutput[1]);
-                let tempInfo = Utilities.parseSensorsOutput(output,Utilities.parseSensorsTemperatureLine);
-                tempInfo = tempInfo.filter(Utilities.filterTemperature);
-                this._appendMultipleItems(tempInfo);
+            try {
+                const sensorsOutput = GLib.spawn_command_line_sync(sensorsCmd);
 
-                if (this._display_fan_rpm){
-                    let fanInfo = Utilities.parseSensorsOutput(output,Utilities.parseFanRPMLine);
-                    fanInfo = fanInfo.filter(Utilities.filterFan);
-                    this._appendMultipleItems(fanInfo);
+                if(sensorsOutput[0]) {
+                    const output = Utilities.stringify(sensorsOutput[1]);
+                    let tempInfo = Utilities.parseSensorsOutput(output,Utilities.parseSensorsTemperatureLine);
+                    tempInfo = tempInfo.filter(Utilities.filterTemperature);
+                    this._appendMultipleItems(tempInfo);
+
+                    if (this._display_fan_rpm){
+                        let fanInfo = Utilities.parseSensorsOutput(output,Utilities.parseFanRPMLine);
+                        fanInfo = fanInfo.filter(Utilities.filterFan);
+                        this._appendMultipleItems(fanInfo);
+                    }
+                    if (this._display_voltage){
+                        const voltageInfo = Utilities.parseSensorsOutput(output,Utilities.parseVoltageLine);
+                        this._appendMultipleItems(voltageInfo);
+                    }
                 }
-                if (this._display_voltage){
-                    const voltageInfo = Utilities.parseSensorsOutput(output,Utilities.parseVoltageLine);
-                    this._appendMultipleItems(voltageInfo);
-                }
+            } catch (e) {
+                Logger.error('Could not get sensors labels.');
+                return;
             }
         }
     }
@@ -232,7 +242,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
     _getSensorsVersion() {
         const sensorsCmd = Utilities.detectSensors();
         if(sensorsCmd) {
-            return Utilities.stringify(GLib.spawn_command_line_sync(sensorsCmd.join(' ') + ' --version')[1]);
+            return Utilities.stringify(GLib.spawn_command_line_sync(sensorsCmd + ' --version')[1]);
         }
     }
 

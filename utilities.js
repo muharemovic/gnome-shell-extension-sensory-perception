@@ -51,10 +51,10 @@ function detectSensors() {
 
     if ((typeof sensorsProg === 'undefined') || (sensorsProg === null)) {
         Logger.error('Program sensors not found!');
-        return ['Program sensors not found!'];
+        return;
     }
 
-    return [sensorsProg];
+    return sensorsProg;
 }
 
 function detectHDDTemp() {
@@ -243,7 +243,7 @@ var Future = class SensoryPerception_Future {
             this._callback = callback;
             const [exit, pid, stdin, stdout, stderr] = GLib.spawn_async_with_pipes(
                 null, /* cwd */
-                argv, /* args */
+                [argv].flat(), /* args */
                 null, /* env */
                 GLib.SpawnFlags.DO_NOT_REAP_CHILD,
                 null /* child_setup */
