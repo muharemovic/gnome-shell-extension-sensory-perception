@@ -1,0 +1,121 @@
+# Hungarian translation for GNOME Extension - Sensory Perception.
+# Copyright (C) 2021 Free Software Foundation, Inc.
+# This file is distributed under the same license as the sensory-perception package.
+#
+# Balázs Úr <balazs@urbalazs.hu>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: sensory-perception\n"
+"Report-Msgid-Bugs-To: https://github.com/HarlemSquirrel/gnome-shell-extension-sensory-perception/issues\n"
+"POT-Creation-Date: 2013-05-25 18:09+0200\n"
+"PO-Revision-Date: 2021-10-06 00:02+0200\n"
+"Last-Translator: Balázs Úr <balazs@urbalazs.hu>\n"
+"Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 18.12.3\n"
+
+#. Add average and maximum entries
+#: ../src/extension.js:153 ../src/prefs.js:102
+msgid "Average"
+msgstr "Átlag"
+
+#: ../src/extension.js:154 ../src/prefs.js:103
+msgid "Maximum"
+msgstr "Legnagyobb"
+
+#: ../src/extension.js:161
+#, c-format
+msgid "%drpm"
+msgstr "%d rpm"
+
+#: ../src/extension.js:167
+#, c-format
+msgid "%s%.2fV"
+msgstr "%s%.2fV"
+
+#: ../src/extension.js:170
+msgid "N/A"
+msgstr "N/A"
+
+#: ../src/extension.js:185
+msgid "Error"
+msgstr "Hiba"
+
+#: ../src/extension.js:189
+msgid "Please run sensors-detect as root."
+msgstr "Futtassa a sensors-detect programot rendszergazdaként."
+
+#: ../src/extension.js:190
+msgid "Please install lm_sensors."
+msgstr "Telepítse az lm_sensors programot."
+
+#: ../src/extension.js:190
+msgid "If this doesn't help, click here to report with your sensors output!"
+msgstr ""
+"Ha ez nem segít, akkor kattintson ide az érzékelők kimenetét tartalmazó "
+"jelentéshez!"
+
+#: ../src/extension.js:204
+msgid "Sensors Settings"
+msgstr "Érzékelők beállításai"
+
+#: ../src/prefs.js:33
+msgid "Poll sensors every (in seconds)"
+msgstr "Érzékelők lekérdezésének gyakorisága (másodpercben)"
+
+#: ../src/prefs.js:41
+msgid "Temperature unit"
+msgstr "Hőmérséklet mértékegysége"
+
+#: ../src/prefs.js:42
+msgid "Centigrade"
+msgstr "Celsius-skála"
+
+#: ../src/prefs.js:43
+msgid "Fahrenheit"
+msgstr "Fahrenheit"
+
+#: ../src/prefs.js:56
+msgid "Display temperature unit"
+msgstr "Hőmérséklet mértékegységének megjelenítése"
+
+#: ../src/prefs.js:57
+msgid "Show temperature unit in panel and menu."
+msgstr "A hőmérséklet mértékegységének megjelenítése a panelen és a menüben."
+
+#: ../src/prefs.js:61
+msgid "Display decimal value"
+msgstr "Tizedes érték megjelenítése"
+
+#: ../src/prefs.js:62
+msgid "Show one digit after decimal."
+msgstr "Egy számjegy megjelenítése a tizedesjegy után."
+
+#: ../src/prefs.js:66
+msgid "Display drive temperature"
+msgstr "Meghajtó hőmérsékletének megjelenítése"
+
+#: ../src/prefs.js:70
+msgid "Display fan speed"
+msgstr "Ventilátor sebességének megjelenítése"
+
+#: ../src/prefs.js:74
+msgid "Display power supply voltage"
+msgstr "Tápellátási feszültség megjelenítése"
+
+#: ../src/prefs.js:129
+msgid "Sensor in panel"
+msgstr "Érzékelő a panelen"
+
+#: ../src/prefs.js:133
+msgid "Display sensor label"
+msgstr "Érzékelő címkéjének megjelenítése"
+
+#: ../src/utilities.js:157
+#, c-format
+msgid "Drive %s"
+msgstr "%s meghajtó"
