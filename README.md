@@ -45,7 +45,7 @@ This is useful for developing and/or debugging.
 #### Build and install on GNOME 40+
 
 ```sh
-./build-zip.sh | grep -o *.zip | xargs gnome-extensions install --force
+./build-zip.sh | grep -oP "\S+.zip" | xargs gnome-extensions install --force
 ```
 
 Then reload the shell (only works on XOrg) or reboot.
