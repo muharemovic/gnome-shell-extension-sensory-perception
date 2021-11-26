@@ -22,6 +22,7 @@ const Metadata = Me.metadata;
 
 const ELLIPSIS = '\u2026';
 
+let sensorsMenu;
 let settings;
 
 const SensorsItem = class SensoryPerception_SensorsItem {
@@ -47,9 +48,9 @@ const SensorsItem = class SensoryPerception_SensorsItem {
 
     getPanelString() {
         if(settings.get_boolean('display-label'))
-        return '%s: %s'.format(this._menuItem._label, this._menuItem._value);
+            return '%s: %s'.format(this._menuItem._label, this._menuItem._value);
         else
-        return this._menuItem._value;
+            return this._menuItem._value;
     }
 
     setMainSensor() {
@@ -295,14 +296,12 @@ class SensoryPerception_SensorsMenuButton extends PanelMenu.Button {
     }
 });
 
-let sensorsMenu;
-
 function init(extensionMeta) {
     ExtensionUtils.initTranslations();
-    settings = ExtensionUtils.getSettings();
 }
 
 function enable() {
+    settings = ExtensionUtils.getSettings();
     sensorsMenu = new SensorsMenuButton();
     Main.panel.addToStatusArea('sensorsMenu', sensorsMenu, 1, 'right');
 }
@@ -310,4 +309,5 @@ function enable() {
 function disable() {
     sensorsMenu.destroy();
     sensorsMenu = null;
+    settings = null;
 }
