@@ -45,7 +45,7 @@ This is useful for developing and/or debugging.
 #### Build and install on GNOME 40+
 
 ```sh
-./build-zip.sh | grep -oP "\S+.zip" | xargs gnome-extensions install --force
+bin/build-dist.sh && gnome-extensions install --force dist/sensory-perception@HarlemSquirrel.github.io.shell-extension.zip
 ```
 
 Then reload the shell (only works on XOrg) or reboot.
@@ -89,7 +89,7 @@ One of the best ways to troubleshoot is to watch the logs with `journalctl` and 
 
 ### Launch preferences from a terminal
 
-GNOME 40
+GNOME 40+
 
     gnome-extensions prefs sensory-perception@HarlemSquirrel.github.io
 
@@ -100,11 +100,4 @@ Earlier versions
 
 ## Build a zip file for distribution
 
-    # Check for lints first
-    npm run test
-    # Then build a zip file
-    npm run build
-
-## Compile schemas
-
-    glib-compile-schemas --strict schemas/
+    bin/build-dist.sh
