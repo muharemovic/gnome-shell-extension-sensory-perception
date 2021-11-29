@@ -16,25 +16,25 @@ const Utilities = Me.imports.utilities;
 const BOOL_SETTINGS = {
     displayDegreeSign: {
         name: "display-degree-sign",
-        label: _("Display temperature unit"),
-        help: _("Show temperature unit in panel and menu.")
+        label: "Display temperature unit",
+        help: "Show temperature unit in panel and menu."
     },
     displayDecimalValue: {
         name: "display-decimal-value",
-        label: _("Display decimal value"),
-        help: _("Show one digit after decimal.")
+        label: "Display decimal value",
+        help: "Show one digit after decimal."
     },
     showHddTemp: {
         name: "display-hdd-temp",
-        label: _("Display drive temperature"),
+        label: "Display drive temperature",
     },
     showFanRpm: {
         name: "display-fan-rpm",
-        label: _("Display fan speed"),
+        label: "Display fan speed",
     },
     showVoltage: {
         name: "display-voltage",
-        label: _("Display power supply voltage"),
+        label: "Display power supply voltage",
     },
 };
 
@@ -116,7 +116,7 @@ class SensorsPrefsWidget extends Gtk.Grid {
 
         for (const boolSetting in BOOL_SETTINGS){
             const setting = BOOL_SETTINGS[boolSetting];
-            const settingLabel = new Gtk.Label({ label: setting.label, xalign: 1 });
+            const settingLabel = new Gtk.Label({ label: _(setting.label), xalign: 1 });
             const settingSwitch = new Gtk.Switch({ active: this._settings.get_boolean(setting.name) });
             const settingSwitchBox = new Gtk.Box();
             // const settings = this._settings;
@@ -126,8 +126,8 @@ class SensorsPrefsWidget extends Gtk.Grid {
             });
 
             if (setting.help) {
-                settingLabel.set_tooltip_text(setting.help);
-                settingSwitch.set_tooltip_text(setting.help);
+                settingLabel.set_tooltip_text(_(setting.help));
+                settingSwitch.set_tooltip_text(_(setting.help));
             }
 
             // Placing the switch inside a box avoids stretching it's width.
