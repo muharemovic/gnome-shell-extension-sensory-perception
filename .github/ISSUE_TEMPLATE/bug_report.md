@@ -7,26 +7,41 @@ assignees: HarlemSquirrel
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### Description
 
-**To Reproduce**
+<!--
+A clear and concise description of what the bug is.
+-->
+
+<!--
+Include any screenshots showing the issue
+-->
+
+### Steps to Reproduce
+
+<!--
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
+-->
 
-**Expected behavior**
+### Expected Behavior
+
+<!--
 A clear and concise description of what you expected to happen.
+-->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+### System
+- Make and model: <!-- Computer OEM make and model or motherboard make and model -->
+- CPU: <!-- [e.g. AMD Ryzen 7 3800X ] -->
+- GPU: <!--- [e.g. NITRO+ RX 5700 XT 8G] -->
+- OS: <!-- [e.g. Ubuntu 20.04] -->
+- Sensors version: <!-- Output of running `sensors -v`in a terminal -->
+ 
+### Sensors Output
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Ubuntu]
- - Version [e.g. 18.04]
- - Version of lm-sensors (or lm_sensors)
-
-**Additional context**
-Add any other context about the problem here.
+<!--
+Output of running the `sensors` in a terminal
+-->
