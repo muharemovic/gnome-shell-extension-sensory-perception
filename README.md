@@ -21,11 +21,14 @@ sudo apt install lm-sensors
 
 ## Compatibility
 
-As of [v18](/releases/tag/v14) GNOME Shell 42 is tested as working.
-As of [v14](/releases/tag/v14) GNOME Shell 40 is tested as working.
-As of [v12](/releases/tag/v12) GNOME Shell 3.36 is tested as working.
-As of [v11](/releases/tag/v11) GNOME Shell 3.34 is tested as working.
-As of [v8](/releases/tag/v8) GNOME Shell 3.32 is tested as working.
+| GNOME version | Earliest extension version
+| - | -
+| 42 | [v18](/releases/tag/v18)
+| 41 | [v15](/releases/tag/v15)
+| 40 | [v14](/releases/tag/v14)
+| 3.36 | [v12](/releases/tag/v12)
+| 3.34 | [v11](/releases/tag/v11)
+| 3.32 | [v12](/releases/tag/v8)
 
 GNOME Shell < 3.32 require [v7](/releases/tag/v7).
 
